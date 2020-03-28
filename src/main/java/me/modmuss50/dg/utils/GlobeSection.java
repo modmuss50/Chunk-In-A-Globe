@@ -13,7 +13,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
 
@@ -118,9 +117,6 @@ public class GlobeSection {
 				Vec3d pos = new Vec3d(entityData.getDouble("entity_x"), entityData.getDouble("entity_y"), entityData.getDouble("entity_z"));
 				entityVec3dMap.put(entity, pos);
 			}
-		}
-		if (entities.isEmpty()) {
-			System.out.println("hi");
 		}
 	}
 

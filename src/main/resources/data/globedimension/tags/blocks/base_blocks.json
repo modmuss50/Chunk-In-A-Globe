@@ -4,6 +4,13 @@
     "#logs",
     "#planks",
     "#wool",
-    "#stone_bricks"
+    "#stone_bricks",
+    "diamond_block",
+    "emerald_block",
+    "lapis_block",
+    "redstone_block",
+    "quartz_block",
+    "coal_block",
+    "purpur_block"
   ]
 }

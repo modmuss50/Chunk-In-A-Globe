@@ -32,5 +32,6 @@ public class DimensionGlobeClient implements ClientModInitializer {
 			});
 
 		});
+		GlobeSectionManagerClient.register();
 	}
 }

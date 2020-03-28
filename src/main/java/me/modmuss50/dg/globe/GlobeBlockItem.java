@@ -49,6 +49,9 @@ public class GlobeBlockItem extends BlockItem {
 				if (Registry.BLOCK.containsId(identifier)) {
 					((GlobeBlockEntity) blockEntity).setBaseBlock(Registry.BLOCK.get(identifier));
 				}
+				if (stack.getTag().contains("globe_id")) {
+					((GlobeBlockEntity) blockEntity).setGlobeID(stack.getTag().getInt("globe_id"));
+				}
 			}
 		}
 		return super.postPlacement(pos, world, player, stack, state);

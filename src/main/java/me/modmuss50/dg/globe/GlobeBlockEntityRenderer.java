@@ -30,18 +30,42 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 		super(dispatcher);
 	}
 
+	private static int renderDepth = 0;
+
 	@Override
 	public void render(GlobeBlockEntity blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		if (blockEntity.getGlobeID() != -1) {
-			final boolean inner = blockEntity.getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+		final boolean inner = blockEntity.getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+		renderGlobe(inner, blockEntity.getGlobeID(), tickDelta, matrices, vertexConsumers, light, overlay);
+		if (inner) {
+			matrices.push();
+			matrices.translate(0, 1, 0);
+			renderBase(blockEntity.getBaseBlock(), matrices, vertexConsumers, light, overlay);
+			matrices.pop();
+
+			matrices.push();
+			matrices.translate(-7.5, 0, -7.5);
+			matrices.scale(16F, 16F, 16F);
+			renderBase(blockEntity.getBaseBlock(), matrices, vertexConsumers, light, overlay);
+			matrices.pop();
+		} else {
+			renderBase(blockEntity.getBaseBlock(), matrices, vertexConsumers, light, overlay);
+		}
+	}
+
+	public static void renderGlobe(boolean inner, int globeID, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+		if (renderDepth > 2) {
+			return;
+		}
+		renderDepth ++;
+		if (globeID != -1) {
 			final float scale = inner ? 16F : 1 / 16F;
 
 			final BlockRenderManager renderManager = MinecraftClient.getInstance().getBlockRenderManager();
-			final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(blockEntity.getGlobeID(), inner);
+			final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(globeID, inner);
 			matrices.push();
 			if (inner) {
 				matrices.translate(-8 * scale, -8 * scale, -8 * scale);
-				matrices.translate(-8, 0, -8);
+				matrices.translate(-7.5, 0, -7.5);
 			} else {
 				matrices.translate(-1 / 32F, 0, -1/32F);
 			}
@@ -75,8 +99,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 			}
 			matrices.pop();
 		}
-
-		renderBase(blockEntity.getBaseBlock(), matrices, vertexConsumers, light, overlay);
+		renderDepth --;
 	}
 
 	public static void renderBase(Block baseBlock, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {

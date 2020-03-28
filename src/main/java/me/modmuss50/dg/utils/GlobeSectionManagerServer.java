@@ -1,8 +1,14 @@
 package me.modmuss50.dg.utils;
 
 import io.netty.buffer.Unpooled;
+import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
+import it.unimi.dsi.fastutil.ints.IntSet;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
+import net.fabricmc.fabric.api.network.PacketConsumer;
+import net.fabricmc.fabric.api.network.PacketContext;
+import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
@@ -67,6 +73,56 @@ public class GlobeSectionManagerServer {
 		for (ServerPlayerEntity nearbyPlayer : nearbyPlayers) {
 			nearbyPlayer.networkHandler.sendPacket(clientBoundPacket);
 		}
+	}
+
+	public static void register() {
+		ServerSidePacketRegistry.INSTANCE.register(new Identifier(DimensionGlobe.MOD_ID, "update_request"), (packetContext, packetByteBuf) -> {
+			final int amount = packetByteBuf.readInt();
+			IntSet updateQueue = new IntOpenHashSet();
+			for (int i = 0; i < amount; i++) {
+				updateQueue.add(packetByteBuf.readInt());
+			}
+			packetContext.getTaskQueue().execute(() -> {
+				for (Integer id : updateQueue) {
+					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, true);
+					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, false);
+				}
+
+			});
+		});
+	}
+
+	public static void updateAndSyncToPlayers(ServerPlayerEntity playerEntity, int globeID, boolean blocks) {
+		if (globeID == -1) {
+			return;
+		}
+		ServerWorld serverWorld = (ServerWorld) playerEntity.world;
+
+		GlobeManager.Globe globe = GlobeManager.getInstance(serverWorld).getGlobeByID(globeID);
+
+		ServerWorld updateWorld = serverWorld.getServer().getWorld(DimensionGlobe.globeDimension);
+
+		if (blocks) {
+			globe.updateBlockSection(updateWorld, false, null);
+		} else {
+			globe.updateEntitySection(updateWorld, false, null);
+		}
+
+		GlobeSection section = globe.getGlobeSection(false);
+
+		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
+		buf.writeInt(globe.getId());
+		buf.writeBoolean(false);
+		if (blocks) {
+			buf.writeBoolean(true);
+			buf.writeCompoundTag(section.toBlockTag());
+		} else {
+			buf.writeBoolean(false);
+			buf.writeCompoundTag(section.toEntityTag(globe.getGlobeLocation()));
+		}
+
+		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);
+		playerEntity.networkHandler.sendPacket(clientBoundPacket);
 	}
 
 }

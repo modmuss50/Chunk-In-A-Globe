@@ -1,5 +1,6 @@
 package me.modmuss50.dg;
 
+import me.modmuss50.dg.crafting.GlobeCraftingRecipe;
 import me.modmuss50.dg.dim.GlobeDimension;
 import me.modmuss50.dg.dim.GlobeDimensionChunkGenerator;
 import me.modmuss50.dg.dim.GlobeDimensionPlacer;
@@ -7,6 +8,7 @@ import me.modmuss50.dg.globe.GlobeBlock;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.globe.GlobeBlockItem;
 import me.modmuss50.dg.utils.GlobeManager;
+import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
@@ -15,10 +17,9 @@ import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
-import net.minecraft.item.ItemStack;
+import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
 import net.minecraft.util.Identifier;
@@ -26,8 +27,6 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.ChunkGeneratorType;
-
-import java.util.function.Supplier;
 
 public class DimensionGlobe implements ModInitializer {
 
@@ -42,6 +41,8 @@ public class DimensionGlobe implements ModInitializer {
 
 	public static final ItemGroup GLOBE_ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "globes"), () -> globeBlockItem.getWithBase(Blocks.OAK_PLANKS));
 	public static final Tag<Block> BASE_BLOCK_TAG = TagRegistry.block(new Identifier(MOD_ID, "base_blocks"));
+
+	public static final SpecialRecipeSerializer<GlobeCraftingRecipe> GLOBE_CRAFTING = Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(MOD_ID, "globe_crafting"), new SpecialRecipeSerializer<>(GlobeCraftingRecipe::new));
 
 	@Override
 	public void onInitialize() {
@@ -69,5 +70,7 @@ public class DimensionGlobe implements ModInitializer {
 				GlobeManager.getInstance((ServerWorld) world).tick();
 			}
 		});
+
+		GlobeSectionManagerServer.register();
 	}
 }

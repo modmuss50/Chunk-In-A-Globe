@@ -5,6 +5,7 @@ import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSection;
 import net.fabricmc.fabric.api.dimension.v1.EntityPlacer;
+import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.Entity;
@@ -19,14 +20,16 @@ public class GlobeDimensionPlacer implements EntityPlacer {
 	private int globeId = -1;
 	private DimensionType returnDimension = null;
 	private BlockPos returnPos = null;
+	private Block baseBlock = null;
 
 	public GlobeDimensionPlacer() {
 	}
 
-	public GlobeDimensionPlacer(int globeId, DimensionType dimensionType, BlockPos returnPos) {
+	public GlobeDimensionPlacer(int globeId, DimensionType dimensionType, BlockPos returnPos, Block baseBlock) {
 		this.globeId = globeId;
 		this.returnDimension = dimensionType;
 		this.returnPos = returnPos;
+		this.baseBlock = baseBlock;
 	}
 
 	@Override
@@ -60,6 +63,7 @@ public class GlobeDimensionPlacer implements EntityPlacer {
 		world.setBlockState(spawnPos.down(), DimensionGlobe.globeBlock.getDefaultState());
 		GlobeBlockEntity exitBlockEntity = (GlobeBlockEntity) world.getBlockEntity(spawnPos.down());
 		exitBlockEntity.setGlobeID(globeId);
+		exitBlockEntity.setBaseBlock(baseBlock);
 		if (returnPos != null && returnDimension != null) {
 			exitBlockEntity.setReturnPos(returnPos, returnDimension);
 		}

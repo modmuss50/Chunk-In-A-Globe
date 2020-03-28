@@ -1,5 +1,6 @@
 package me.modmuss50.dg.globe;
 
+import me.modmuss50.dg.utils.GlobeSectionManagerClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -19,6 +20,11 @@ public class GlobeItemRenderer {
 			}
 		}
 		GlobeBlockEntityRenderer.renderBase(baseBlock, matrix, vertexConsumerProvider, light, overlay);
+		if (stack.hasTag() && stack.getTag().contains("globe_id")) {
+			int globeId = stack.getTag().getInt("globe_id");
+			GlobeBlockEntityRenderer.renderGlobe(false, globeId, 0F, matrix, vertexConsumerProvider, light, overlay);
+			GlobeSectionManagerClient.requestGlobeUpdate(globeId);
+		}
 	}
 
 }

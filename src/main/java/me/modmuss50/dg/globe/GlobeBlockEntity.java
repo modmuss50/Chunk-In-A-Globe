@@ -112,7 +112,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 				newGlobe();
 			}
 
-			FabricDimensions.teleport(playerEntity, DimensionGlobe.globeDimension, new GlobeDimensionPlacer(globeID, world.getDimension().getType(), getPos()));
+			FabricDimensions.teleport(playerEntity, DimensionGlobe.globeDimension, new GlobeDimensionPlacer(globeID, world.getDimension().getType(), getPos(), baseBlock));
 		}
 	}
 
