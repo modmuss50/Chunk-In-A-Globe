@@ -1,14 +1,13 @@
 package me.modmuss50.dg.globe;
 
+import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.utils.GlobeSection;
 import me.modmuss50.dg.utils.GlobeSectionManagerClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
-import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
-import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
@@ -20,7 +19,6 @@ import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
-import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
@@ -35,11 +33,19 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 	@Override
 	public void render(GlobeBlockEntity blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 		if (blockEntity.getGlobeID() != -1) {
-			final float scale = 1 / 16F;
+			final boolean inner = blockEntity.getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+			final float scale = inner ? 16F : 1 / 16F;
+
 			final BlockRenderManager renderManager = MinecraftClient.getInstance().getBlockRenderManager();
-			final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(blockEntity.getGlobeID());
+			final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(blockEntity.getGlobeID(), inner);
 			matrices.push();
-			matrices.translate(-1 / 32F, 0, -1/32F);
+			if (inner) {
+				matrices.translate(-8 * scale, -8 * scale, -8 * scale);
+				matrices.translate(-8, 0, -8);
+			} else {
+				matrices.translate(-1 / 32F, 0, -1/32F);
+			}
+
 			matrices.scale(scale, scale, scale);
 			for (Map.Entry<BlockPos, BlockState> entry : section.getStateMap().entrySet()) {
 				matrices.push();
@@ -48,15 +54,18 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				matrices.pop();
 			}
 
-			if (section.getEntities().isEmpty()) {
-				System.out.println("empty");
-			}
-
 			for (Entity entity : section.getEntities()) {
 				Vec3d position = section.getEntityVec3dMap().get(entity);
 
 				matrices.push();
-				matrices.translate(position.getX(), position.getY(), position.getZ());
+
+				if (inner) {
+					matrices.translate(position.getX(), position.getY(), position.getZ());
+				} else {
+					matrices.translate(position.getX(), position.getY(), position.getZ());
+				}
+
+				entity.setPos(0, 0, 0);
 				entity.prevX = 0;
 				entity.prevY = 0;
 				entity.prevZ = 0;

@@ -15,11 +15,12 @@ public class DimensionGlobeClient implements ClientModInitializer {
 		BlockEntityRendererRegistry.INSTANCE.register(DimensionGlobe.globeBlockEntityType, GlobeBlockEntityRenderer::new);
 		ClientSidePacketRegistry.INSTANCE.register(new Identifier(DimensionGlobe.MOD_ID, "section_update"), (packetContext, packetByteBuf) -> {
 			final int id = packetByteBuf.readInt();
+			final boolean inner = packetByteBuf.readBoolean();
 			final boolean blocks = packetByteBuf.readBoolean();
 			final CompoundTag data = packetByteBuf.readCompoundTag();
 
 			packetContext.getTaskQueue().execute(() -> {
-				final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(id);
+				final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(id, inner);
 				if (blocks) {
 					section.fromBlockTag(data);
 				} else {
@@ -27,7 +28,7 @@ public class DimensionGlobeClient implements ClientModInitializer {
 						section.fromEntityTag(data, packetContext.getPlayer().world);
 					}
 				}
-				GlobeSectionManagerClient.provideGlobeSectionUpdate(id, section);
+				GlobeSectionManagerClient.provideGlobeSectionUpdate(inner, id, section);
 			});
 
 		});

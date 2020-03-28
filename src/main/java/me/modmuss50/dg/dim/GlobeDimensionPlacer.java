@@ -1,7 +1,7 @@
 package me.modmuss50.dg.dim;
 
 import me.modmuss50.dg.DimensionGlobe;
-import me.modmuss50.dg.exit.ExitBlockEntity;
+import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSection;
 import net.fabricmc.fabric.api.dimension.v1.EntityPlacer;
@@ -50,15 +50,16 @@ public class GlobeDimensionPlacer implements EntityPlacer {
 				for (int z = 0; z < GlobeSection.GLOBE_SIZE; z++) {
 					if (x == 0 || x == GlobeSection.GLOBE_SIZE -1 || y == 0 || y == GlobeSection.GLOBE_SIZE -1 || z == 0 || z == GlobeSection.GLOBE_SIZE -1) {
 						mutable.set(globePos.getX() + x, globePos.getY() + y, globePos.getZ() + z);
-						world.setBlockState(mutable, Blocks.BLACK_CONCRETE.getDefaultState());
+						world.setBlockState(mutable, Blocks.BARRIER.getDefaultState());
 					}
 
 				}
 			}
 		}
 
-		world.setBlockState(spawnPos.down(), DimensionGlobe.exitBlock.getDefaultState());
-		ExitBlockEntity exitBlockEntity = (ExitBlockEntity) world.getBlockEntity(spawnPos.down());
+		world.setBlockState(spawnPos.down(), DimensionGlobe.globeBlock.getDefaultState());
+		GlobeBlockEntity exitBlockEntity = (GlobeBlockEntity) world.getBlockEntity(spawnPos.down());
+		exitBlockEntity.setGlobeID(globeId);
 		if (returnPos != null && returnDimension != null) {
 			exitBlockEntity.setReturnPos(returnPos, returnDimension);
 		}

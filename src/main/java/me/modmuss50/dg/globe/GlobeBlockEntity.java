@@ -1,6 +1,7 @@
 package me.modmuss50.dg.globe;
 
 import me.modmuss50.dg.DimensionGlobe;
+import me.modmuss50.dg.dim.ExitPlacer;
 import me.modmuss50.dg.dim.GlobeDimensionPlacer;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
@@ -14,12 +15,18 @@ import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Tickable;
+import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.world.dimension.DimensionType;
 
 public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEntityClientSerializable {
 
 	private int globeID = -1;
 	private Block baseBlock;
+
+	private BlockPos returnPos;
+	private DimensionType returnDimType;
 
 	public GlobeBlockEntity() {
 		super(DimensionGlobe.globeBlockEntityType);
@@ -28,8 +35,10 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	@Override
 	public void tick() {
 		if (!world.isClient && globeID != -1) {
-			GlobeManager.getInstance((ServerWorld) world)
-					.markGlobeForTicking(globeID);
+			if (!isInner()) {
+				GlobeManager.getInstance((ServerWorld) world)
+						.markGlobeForTicking(globeID);
+			}
 		}
 		if (!world.isClient) {
 			if (world.getTime() % 20 == 0) {
@@ -37,7 +46,6 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			} else {
 				GlobeSectionManagerServer.updateAndSyncToPlayers(this, false);
 			}
-
 		}
 	}
 
@@ -51,6 +59,17 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 				baseBlock = Registry.BLOCK.get(identifier);
 			}
 		}
+		if (tag.contains("return_x")) {
+			returnPos = new BlockPos(tag.getInt("return_x"), tag.getInt("return_y"), tag.getInt("return_z"));
+
+			Identifier returnType = new Identifier(tag.getString("return_dim"));
+			if (Registry.DIMENSION_TYPE.containsId(returnType)) {
+				returnDimType = Registry.DIMENSION_TYPE.get(returnType);
+			} else {
+				returnPos = null;
+				returnDimType = null;
+			}
+		}
 	}
 
 	@Override
@@ -59,6 +78,14 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 		if (baseBlock != null) {
 			tag.putString("base_block", Registry.BLOCK.getId(baseBlock).toString());
 		}
+
+		if (returnPos != null && returnDimType != null) {
+			tag.putInt("return_x", returnPos.getX());
+			tag.putInt("return_y", returnPos.getY());
+			tag.putInt("return_z", returnPos.getZ());
+			tag.putString("return_dim", Registry.DIMENSION_TYPE.getId(returnDimType).toString());
+		}
+
 		return super.toTag(tag);
 	}
 
@@ -79,7 +106,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 		}
 
 		if (playerEntity.world.getDimension().getType() == DimensionGlobe.globeDimension) {
-			throw new RuntimeException();
+			transportPlayerOut(playerEntity);
 		} else {
 			if (globeID == -1) {
 				newGlobe();
@@ -89,8 +116,40 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 		}
 	}
 
+	public void setReturnPos(BlockPos returnPos, DimensionType returnDimType) {
+		this.returnPos = returnPos;
+		this.returnDimType = returnDimType;
+		markDirty();
+	}
+
+	public void transportPlayerOut(ServerPlayerEntity playerEntity) {
+		if (getWorld().getDimension().getType() == DimensionGlobe.globeDimension) {
+			DimensionType teleportDim = returnDimType == null ? DimensionType.OVERWORLD : returnDimType;
+			FabricDimensions.teleport(playerEntity, teleportDim, new ExitPlacer(returnPos));
+		}
+	}
+
+	public DimensionType getReturnDimType() {
+		return returnDimType == null ? DimensionType.OVERWORLD : returnDimType;
+	}
+
+	public BlockPos getInnerScanPos() {
+		if (returnPos == null) {
+			return BlockPos.ORIGIN;
+		}
+		return returnPos.subtract(new Vec3i(8, 8 , 8));
+	}
+
+	public boolean isInner() {
+		return getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+	}
+
 	public int getGlobeID() {
 		return globeID;
+	}
+
+	public void setGlobeID(int globeID) {
+		this.globeID = globeID;
 	}
 
 	@Override

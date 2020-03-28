@@ -7,6 +7,7 @@ import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
 import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import me.modmuss50.dg.DimensionGlobe;
+import me.modmuss50.dg.globe.GlobeBlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
@@ -132,6 +133,7 @@ public class GlobeManager extends PersistentState {
 	public static class Globe {
 		private final int id;
 		private GlobeSection globeSection = null;
+		private GlobeSection innerGlobeSection = null;
 
 		public Globe(int id) {
 			this.id = id;
@@ -159,21 +161,40 @@ public class GlobeManager extends PersistentState {
 			return new CompoundTag();
 		}
 
-		public void updateBlockSection(ServerWorld world) {
-			if (globeSection == null) {
-				globeSection = new GlobeSection();
+		public void updateBlockSection(ServerWorld world, boolean inner, GlobeBlockEntity blockEntity) {
+			if (inner) {
+				if (innerGlobeSection == null) {
+					innerGlobeSection = new GlobeSection();
+				}
+				innerGlobeSection.buildBlockMap(world, blockEntity.getInnerScanPos());
+			} else {
+				if (globeSection == null) {
+					globeSection = new GlobeSection();
+				}
+				globeSection.buildBlockMap(world, getGlobeLocation());
 			}
-			globeSection.buildBlockMap(world, getGlobeLocation());
+
 		}
 
-		public void updateEntitySection(ServerWorld world) {
-			if (globeSection == null) {
-				globeSection = new GlobeSection();
+		public void updateEntitySection(ServerWorld world, boolean inner, GlobeBlockEntity blockEntity) {
+			if (inner) {
+				if (innerGlobeSection == null) {
+					innerGlobeSection = new GlobeSection();
+				}
+				innerGlobeSection.buildEntityList(world, blockEntity.getInnerScanPos());
+			} else {
+				if (globeSection == null) {
+					globeSection = new GlobeSection();
+				}
+				globeSection.buildEntityList(world, getGlobeLocation());
 			}
-			globeSection.buildEntityList(world, getGlobeLocation());
+
 		}
 
-		public GlobeSection getGlobeSection() {
+		public GlobeSection getGlobeSection(boolean inner) {
+			if (inner) {
+				return innerGlobeSection;
+			}
 			return globeSection;
 		}
 

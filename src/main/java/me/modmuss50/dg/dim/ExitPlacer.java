@@ -1,4 +1,4 @@
-package me.modmuss50.dg.exit;
+package me.modmuss50.dg.dim;
 
 import net.fabricmc.fabric.api.dimension.v1.EntityPlacer;
 import net.minecraft.block.pattern.BlockPattern;

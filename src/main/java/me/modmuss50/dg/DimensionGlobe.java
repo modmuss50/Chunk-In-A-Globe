@@ -3,8 +3,6 @@ package me.modmuss50.dg;
 import me.modmuss50.dg.dim.GlobeDimension;
 import me.modmuss50.dg.dim.GlobeDimensionChunkGenerator;
 import me.modmuss50.dg.dim.GlobeDimensionPlacer;
-import me.modmuss50.dg.exit.ExitBlock;
-import me.modmuss50.dg.exit.ExitBlockEntity;
 import me.modmuss50.dg.globe.GlobeBlock;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.globe.GlobeBlockItem;
@@ -39,9 +37,6 @@ public class DimensionGlobe implements ModInitializer {
 	public static GlobeBlockItem globeBlockItem;
 	public static BlockEntityType<GlobeBlockEntity> globeBlockEntityType;
 
-	public static ExitBlock exitBlock;
-	public static BlockEntityType<ExitBlockEntity> exitBlockEntityType;
-
 	public static FabricDimensionType globeDimension;
 	public static ChunkGeneratorType<ChunkGeneratorConfig, GlobeDimensionChunkGenerator> globeChunkGenerator;
 
@@ -54,7 +49,6 @@ public class DimensionGlobe implements ModInitializer {
 		Identifier exitID = new Identifier(MOD_ID, "exit");
 		
 		Registry.register(Registry.BLOCK, globeID, globeBlock = new GlobeBlock());
-		Registry.register(Registry.BLOCK, exitID, exitBlock = new ExitBlock());
 
 		globeBlockItem = new GlobeBlockItem(globeBlock, new Item.Settings().group(GLOBE_ITEM_GROUP));
 		globeBlockItem.appendBlocks(Item.BLOCK_ITEMS, globeBlockItem);
@@ -62,9 +56,6 @@ public class DimensionGlobe implements ModInitializer {
 
 		globeBlockEntityType = BlockEntityType.Builder.create(GlobeBlockEntity::new, globeBlock).build(null);
 		Registry.register(Registry.BLOCK_ENTITY_TYPE, globeID, globeBlockEntityType);
-
-		exitBlockEntityType = BlockEntityType.Builder.create(ExitBlockEntity::new, exitBlock).build(null);
-		Registry.register(Registry.BLOCK_ENTITY_TYPE, exitID, exitBlockEntityType);
 
 		globeDimension = FabricDimensionType.builder()
 				.factory(GlobeDimension::new)
