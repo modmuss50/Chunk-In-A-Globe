@@ -87,6 +87,12 @@ public class GlobeManager extends PersistentState {
 		getGlobeWorld().getChunkManager().removeTicket(GLOBE_CHUNK_LOADER, chunk, 32, chunk);
 	}
 
+	@Override
+	public boolean isDirty() {
+		//Always save please
+		return true;
+	}
+
 	private ServerWorld getGlobeWorld() {
 		return world.getServer().getWorld(DimensionGlobe.globeDimension);
 	}
@@ -153,11 +159,18 @@ public class GlobeManager extends PersistentState {
 			return new CompoundTag();
 		}
 
-		public void updateSection(ServerWorld world) {
+		public void updateBlockSection(ServerWorld world) {
 			if (globeSection == null) {
 				globeSection = new GlobeSection();
 			}
-			globeSection.build(world, getGlobeLocation());
+			globeSection.buildBlockMap(world, getGlobeLocation());
+		}
+
+		public void updateEntitySection(ServerWorld world) {
+			if (globeSection == null) {
+				globeSection = new GlobeSection();
+			}
+			globeSection.buildEntityList(world, getGlobeLocation());
 		}
 
 		public GlobeSection getGlobeSection() {

@@ -11,7 +11,7 @@ public class GlobeSectionManagerClient {
 
 	public static GlobeSection getGlobeSection(int globeID) {
 		if (!selectionMap.containsKey(globeID)) {
-			return EMPTY;
+			return new GlobeSection();
 		}
 		return selectionMap.get(globeID);
 	}

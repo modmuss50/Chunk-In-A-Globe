@@ -15,7 +15,7 @@ import java.util.List;
 
 public class GlobeSectionManagerServer {
 
-	public static void updateAndSyncToPlayers(GlobeBlockEntity blockEntity) {
+	public static void updateAndSyncToPlayers(GlobeBlockEntity blockEntity, boolean blocks) {
 		if (blockEntity.getWorld().isClient) {
 			throw new RuntimeException();
 		}
@@ -38,17 +38,30 @@ public class GlobeSectionManagerServer {
 		}
 
 		GlobeManager.Globe globe = GlobeManager.getInstance(serverWorld).getGlobeByID(blockEntity.getGlobeID());
-		globe.updateSection(serverWorld.getServer().getWorld(DimensionGlobe.globeDimension));
+		if (blocks) {
+			globe.updateBlockSection(serverWorld.getServer().getWorld(DimensionGlobe.globeDimension));
+		} else {
+			globe.updateEntitySection(serverWorld.getServer().getWorld(DimensionGlobe.globeDimension));
+			if (globe.getGlobeSection().getEntities().isEmpty()) {
+				return;
+			}
+		}
+
 		GlobeSection section = globe.getGlobeSection();
 
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 		buf.writeInt(globe.getId());
-		buf.writeCompoundTag(section.toTag());
+		if (blocks) {
+			buf.writeBoolean(true);
+			buf.writeCompoundTag(section.toBlockTag());
+		} else {
+			buf.writeBoolean(false);
+			buf.writeCompoundTag(section.toEntityTag(globe.getGlobeLocation()));
+		}
 
 		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);
 		for (ServerPlayerEntity nearbyPlayer : nearbyPlayers) {
 			nearbyPlayer.networkHandler.sendPacket(clientBoundPacket);
-			System.out.println("Sending data to " + nearbyPlayer.getDisplayName());
 		}
 	}
 

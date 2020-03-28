@@ -6,15 +6,20 @@ import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
+import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.Tickable;
+import net.minecraft.util.registry.Registry;
 
 public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEntityClientSerializable {
 
 	private int globeID = -1;
+	private Block baseBlock;
 
 	public GlobeBlockEntity() {
 		super(DimensionGlobe.globeBlockEntityType);
@@ -26,8 +31,13 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			GlobeManager.getInstance((ServerWorld) world)
 					.markGlobeForTicking(globeID);
 		}
-		if (!world.isClient && world.getTime() % 20 == 0) {
-			GlobeSectionManagerServer.updateAndSyncToPlayers(this);
+		if (!world.isClient) {
+			if (world.getTime() % 20 == 0) {
+				GlobeSectionManagerServer.updateAndSyncToPlayers(this, true);
+			} else {
+				GlobeSectionManagerServer.updateAndSyncToPlayers(this, false);
+			}
+
 		}
 	}
 
@@ -35,11 +45,20 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	public void fromTag(CompoundTag tag) {
 		super.fromTag(tag);
 		globeID = tag.getInt("globe_id");
+		if (tag.contains("base_block")) {
+			Identifier identifier = new Identifier(tag.getString("base_block"));
+			if (Registry.BLOCK.containsId(identifier)) {
+				baseBlock = Registry.BLOCK.get(identifier);
+			}
+		}
 	}
 
 	@Override
 	public CompoundTag toTag(CompoundTag tag) {
 		tag.putInt("globe_id", globeID);
+		if (baseBlock != null) {
+			tag.putString("base_block", Registry.BLOCK.getId(baseBlock).toString());
+		}
 		return super.toTag(tag);
 	}
 
@@ -82,5 +101,17 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	@Override
 	public CompoundTag toClientTag(CompoundTag compoundTag) {
 		return toTag(compoundTag);
+	}
+
+	public Block getBaseBlock() {
+		if (baseBlock == null) {
+			return Blocks.OAK_PLANKS;
+		}
+		return baseBlock;
+	}
+
+	public void setBaseBlock(Block baseBlock) {
+		this.baseBlock = baseBlock;
+		markDirty();
 	}
 }

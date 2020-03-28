@@ -1,0 +1,14 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "me.modmuss50.dg.mixin",
+  "compatibilityLevel": "JAVA_8",
+  "mixins": [
+  ],
+  "client": [
+    "MixinBuiltinModelItemRenderer"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}

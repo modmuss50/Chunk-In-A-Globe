@@ -1,0 +1,9 @@
+{
+  "replace": false,
+  "values": [
+    "#logs",
+    "#planks",
+    "#wool",
+    "#stone_bricks"
+  ]
+}
