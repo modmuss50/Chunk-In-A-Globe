@@ -12,9 +12,11 @@ import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
+import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.Item;
@@ -22,6 +24,7 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.world.dimension.DimensionType;
@@ -47,8 +50,7 @@ public class DimensionGlobe implements ModInitializer {
 	@Override
 	public void onInitialize() {
 		Identifier globeID = new Identifier(MOD_ID, "globe");
-		Identifier exitID = new Identifier(MOD_ID, "exit");
-		
+
 		Registry.register(Registry.BLOCK, globeID, globeBlock = new GlobeBlock());
 
 		globeBlockItem = new GlobeBlockItem(globeBlock, new Item.Settings().group(GLOBE_ITEM_GROUP));
@@ -69,6 +71,16 @@ public class DimensionGlobe implements ModInitializer {
 			if (!world.isClient && world.getDimension().getType() == DimensionType.OVERWORLD) {
 				GlobeManager.getInstance((ServerWorld) world).tick();
 			}
+		});
+
+		AttackBlockCallback.EVENT.register((playerEntity, world, hand, blockPos, direction) -> {
+			if (world.getDimension().getType() == globeDimension) {
+				BlockState state = world.getBlockState(blockPos);
+				if (state.getBlock() == globeBlock || state.getBlock() == Blocks.BARRIER) {
+					return ActionResult.FAIL;
+				}
+			}
+			return ActionResult.PASS;
 		});
 
 		GlobeSectionManagerServer.register();

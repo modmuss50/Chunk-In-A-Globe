@@ -7,9 +7,11 @@ import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.tag.Tag;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.ActionResult;
 import net.minecraft.util.DefaultedList;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -38,6 +40,15 @@ public class GlobeBlockItem extends BlockItem {
 		stack.setTag(compoundTag);
 
 		return stack;
+	}
+
+	@Override
+	public ActionResult place(ItemPlacementContext context) {
+		if (context.getPlayer().world.getDimension().getType() == DimensionGlobe.globeDimension) {
+			context.getPlayer().sendMessage(new LiteralText("You cannot bend the space time continuum any more."));
+			return ActionResult.FAIL;
+		}
+		return super.place(context);
 	}
 
 	@Override

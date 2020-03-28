@@ -5,6 +5,7 @@ import me.modmuss50.dg.utils.GlobeSection;
 import me.modmuss50.dg.utils.GlobeSectionManagerClient;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
+import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
@@ -35,11 +36,11 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 	@Override
 	public void render(GlobeBlockEntity blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
 		final boolean inner = blockEntity.getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
-		renderGlobe(inner, blockEntity.getGlobeID(), tickDelta, matrices, vertexConsumers, light, overlay);
+		renderGlobe(inner, blockEntity.getGlobeID(), matrices, vertexConsumers, light);
 		if (inner) {
 			matrices.push();
 			matrices.translate(0, 1, 0);
-			renderBase(blockEntity.getBaseBlock(), matrices, vertexConsumers, light, overlay);
+			renderBase(null, matrices, vertexConsumers, light, overlay);
 			matrices.pop();
 
 			matrices.push();
@@ -52,7 +53,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 		}
 	}
 
-	public static void renderGlobe(boolean inner, int globeID, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
+	public static void renderGlobe(boolean inner, int globeID, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light) {
 		if (renderDepth > 2) {
 			return;
 		}
@@ -74,7 +75,15 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 			for (Map.Entry<BlockPos, BlockState> entry : section.getStateMap().entrySet()) {
 				matrices.push();
 				matrices.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
-				renderManager.renderBlockAsEntity(entry.getValue(), matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV);
+				if (entry.getValue().getBlock() instanceof GlobeBlock) {
+//					BlockPos checkPos = entry.getKey().subtract(new Vec3i(8, 8 , 8));
+//					if (checkPos.getX() != 0 && checkPos.getY() != 0 && checkPos.getZ() != 0) {
+//						renderGlobe(false, section.getGlobeData().get(entry.getKey()), matrices, vertexConsumers, light);
+//					}
+
+				} else {
+					renderManager.renderBlockAsEntity(entry.getValue(), matrices, vertexConsumers, light, OverlayTexture.DEFAULT_UV);
+				}
 				matrices.pop();
 			}
 
@@ -93,7 +102,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				entity.prevX = 0;
 				entity.prevY = 0;
 				entity.prevZ = 0;
-				MinecraftClient.getInstance().getEntityRenderManager().render(entity, 0.0D, 0.0D, 0.0D, 0, 1, matrices, vertexConsumers, light);
+				MinecraftClient.getInstance().getEntityRenderManager().render(entity, 0.0D, 0.0D, 0.0D, entity.yaw, 1, matrices, vertexConsumers, light);
 				matrices.pop();
 
 			}
@@ -106,9 +115,15 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 		final BlockRenderManager renderManager = MinecraftClient.getInstance().getBlockRenderManager();
 
 		matrices.push();
-		BakedModel bakedModel = renderManager.getModel(baseBlock.getDefaultState());
-		Sprite blockSprite =  bakedModel.getSprite();
-		Identifier blockTexture = new Identifier(blockSprite.getId().getNamespace(), "textures/" + blockSprite.getId().getPath() + ".png");
+		Identifier blockTexture = new Identifier(DimensionGlobe.MOD_ID, "textures/blocks/portal.png");
+		Sprite blockSprite;
+		if (baseBlock != null) {
+			BakedModel bakedModel = renderManager.getModel(baseBlock.getDefaultState());
+			blockSprite =  bakedModel.getSprite();
+			blockTexture = new Identifier(blockSprite.getId().getNamespace(), "textures/" + blockSprite.getId().getPath() + ".png");
+		} else {
+			blockSprite =  renderManager.getModel(Blocks.STONE.getDefaultState()).getSprite();
+		}
 		BaseModel baseModel = new BaseModel(blockSprite);
 		baseModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(blockTexture)), light, overlay, 1F, 1F, 1F, 1F);
 		matrices.pop();
@@ -126,7 +141,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 			base = new ModelPart(this);
 
 			base.addCuboid(null, 0, 0, 0,
-			textureHeight, 1, textureWidth,
+			16, 1, 16,
 			0F, 0, 0);
 		}
 

@@ -80,12 +80,12 @@ public class GlobeManager extends PersistentState {
 
 	private void chunkLoadGlobe(int id) {
 		ChunkPos chunk = getGlobeByID(id).getChunkPos();
-		getGlobeWorld().getChunkManager().addTicket(GLOBE_CHUNK_LOADER, chunk, 32, chunk);
+		getGlobeWorld().setChunkForced(chunk.x, chunk.z, true);
 	}
 
 	private void unloadGlobe(int id) {
 		ChunkPos chunk = getGlobeByID(id).getChunkPos();
-		getGlobeWorld().getChunkManager().removeTicket(GLOBE_CHUNK_LOADER, chunk, 32, chunk);
+		getGlobeWorld().setChunkForced(chunk.x, chunk.z, false);
 	}
 
 	@Override
@@ -145,7 +145,7 @@ public class GlobeManager extends PersistentState {
 		}
 
 		public ChunkPos getChunkPos() {
-			return new ChunkPos(0, id * 10);
+			return new ChunkPos(0, id * 100);
 		}
 
 		public BlockPos getGlobeLocation() {

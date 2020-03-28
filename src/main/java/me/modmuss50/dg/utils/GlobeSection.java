@@ -1,6 +1,7 @@
 package me.modmuss50.dg.utils;
 
 import me.modmuss50.dg.globe.GlobeBlock;
+import me.modmuss50.dg.globe.GlobeBlockEntity;
 import net.minecraft.block.BlockState;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.network.OtherClientPlayerEntity;
@@ -26,6 +27,8 @@ public class GlobeSection {
 	public static final int GLOBE_SIZE = 17;
 
 	private final Map<BlockPos, BlockState> stateMap = new HashMap<>();
+	private final Map<BlockPos, Integer> globeData = new HashMap<>();
+
 	private final List<Entity> entities = new ArrayList<>();
 	private final Map<Entity, Vec3d> entityVec3dMap = new HashMap<>();
 
@@ -41,8 +44,14 @@ public class GlobeSection {
 				for (int z = 1; z < GLOBE_SIZE -1; z++) {
 					mutable.set(origin.getX() + x, origin.getY() + y, origin.getZ() + z);
 					BlockState state = world.getBlockState(mutable);
-					if (!state.isAir() && !(state.getBlock() instanceof GlobeBlock)) {
+					if (!state.isAir()) {
 						stateMap.put(new BlockPos(x, y, z), state);
+					}
+					if (state.getBlock() instanceof GlobeBlock) {
+						GlobeBlockEntity globeBlockEntity = (GlobeBlockEntity) world.getBlockEntity(mutable);
+						if (globeBlockEntity.getGlobeID() != -1) {
+							globeData.put(new BlockPos(x, y, z), globeBlockEntity.getGlobeID());
+						}
 					}
 				}
 			}
@@ -59,11 +68,15 @@ public class GlobeSection {
 
 	public void fromBlockTag(CompoundTag tag) {
 		stateMap.clear();
+		globeData.clear();
 		for (String key : tag.getKeys()) {
 			CompoundTag entryTag = tag.getCompound(key);
 			BlockState state = NbtHelper.toBlockState(entryTag.getCompound("state"));
 			BlockPos pos = NbtHelper.toBlockPos(entryTag.getCompound("pos"));
 			stateMap.put(pos, state);
+			if (entryTag.contains("globe_data")) {
+				globeData.put(pos, entryTag.getInt("globe_data"));
+			}
 		}
 	}
 
@@ -75,6 +88,10 @@ public class GlobeSection {
 
 			entryTag.put("state", NbtHelper.fromBlockState(state));
 			entryTag.put("pos", NbtHelper.fromBlockPos(entry.getKey()));
+
+			if (globeData.containsKey(entry.getKey())) {
+				entryTag.putInt("globe_data", globeData.get(entry.getKey()));
+			}
 
 			compoundTag.put("entry_" + entry.getKey().toShortString(), entryTag);
 		}
@@ -149,5 +166,9 @@ public class GlobeSection {
 
 	public Map<Entity, Vec3d> getEntityVec3dMap() {
 		return entityVec3dMap;
+	}
+
+	public Map<BlockPos, Integer> getGlobeData() {
+		return globeData;
 	}
 }

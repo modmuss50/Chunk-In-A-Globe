@@ -19,7 +19,9 @@ public class GlobeDimension extends Dimension {
 
 	@Override
 	public ChunkGenerator<?> createChunkGenerator() {
-		return DimensionGlobe.globeChunkGenerator.create(world, BiomeSourceType.FIXED.applyConfig(BiomeSourceType.FIXED.getConfig(world.getLevelProperties()).setBiome(Biomes.PLAINS)), DimensionGlobe.globeChunkGenerator.createSettings());
+		return DimensionGlobe.globeChunkGenerator.create(world, BiomeSourceType.FIXED
+				.applyConfig(BiomeSourceType.FIXED.getConfig(world.getLevelProperties())
+						.setBiome(Biomes.PLAINS)), DimensionGlobe.globeChunkGenerator.createSettings());
 	}
 
 	@Override
