@@ -3,8 +3,8 @@
   "id": "globedimension",
   "version": "${version}",
 
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Chunk In A Globe",
+  "description": "A chunk in a globe that you can enter",
   "environment": "*",
   "entrypoints": {
     "main": [
