@@ -15,7 +15,7 @@ public class GlobeItemRenderer {
 		Block baseBlock = Blocks.BLUE_CONCRETE;
 		if (stack.hasTag() && stack.getTag().contains("base_block")) {
 			Identifier blockID = new Identifier(stack.getTag().getString("base_block"));
-			if (Registry.BLOCK.containsId(blockID)) {
+			if (Registry.BLOCK.getOrEmpty(blockID).isPresent()) {
 				baseBlock = Registry.BLOCK.get(blockID);
 			}
 		}

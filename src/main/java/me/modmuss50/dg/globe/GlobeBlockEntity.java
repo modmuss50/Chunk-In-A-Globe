@@ -55,7 +55,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 		globeID = tag.getInt("globe_id");
 		if (tag.contains("base_block")) {
 			Identifier identifier = new Identifier(tag.getString("base_block"));
-			if (Registry.BLOCK.containsId(identifier)) {
+			if (Registry.BLOCK.getOrEmpty(identifier).isPresent()) {
 				baseBlock = Registry.BLOCK.get(identifier);
 			}
 		}
@@ -63,7 +63,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			returnPos = new BlockPos(tag.getInt("return_x"), tag.getInt("return_y"), tag.getInt("return_z"));
 
 			Identifier returnType = new Identifier(tag.getString("return_dim"));
-			if (Registry.DIMENSION_TYPE.containsId(returnType)) {
+			if (Registry.DIMENSION_TYPE.getOrEmpty(returnType).isPresent()) {
 				returnDimType = Registry.DIMENSION_TYPE.get(returnType);
 			} else {
 				returnPos = null;

@@ -93,7 +93,7 @@ public class GlobeSection {
 				entryTag.putInt("globe_data", globeData.get(entry.getKey()));
 			}
 
-			compoundTag.put("entry_" + entry.getKey().toShortString(), entryTag);
+			compoundTag.put("entry_" + entry.getKey().toString(), entryTag);
 		}
 		return compoundTag;
 	}
@@ -117,7 +117,7 @@ public class GlobeSection {
 				continue;
 			}
 
-			if (Registry.ENTITY_TYPE.containsId(entityType)) {
+			if (Registry.ENTITY_TYPE.getOrEmpty(entityType).isPresent()) {
 				EntityType<?> type = Registry.ENTITY_TYPE.get(entityType);
 				Entity entity = type.create(world);
 

@@ -75,3 +75,9 @@ publishing {
 		// mavenLocal()
 	}
 }
+
+task printClasspath {
+	doLast {
+		print configurations.runtimeClasspath.getFiles().stream().map {it.toString() }.collect(java.util.stream.Collectors.joining(","))
+	}
+}

@@ -1,4 +1,5 @@
 {
   "itemGroup.globedimension.globes": "Globes",
-  "block.globedimension.globe": "Globe"
+  "block.globedimension.globe": "Globe",
+  "globedimension.block.error": "You cannot bend the space time continuum any more"
 }

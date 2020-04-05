@@ -3,7 +3,6 @@ package me.modmuss50.dg.utils;
 import io.netty.buffer.Unpooled;
 import it.unimi.dsi.fastutil.ints.Int2ObjectArrayMap;
 import it.unimi.dsi.fastutil.ints.Int2ObjectMap;
-import it.unimi.dsi.fastutil.ints.IntList;
 import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.modmuss50.dg.DimensionGlobe;
@@ -11,7 +10,6 @@ import me.modmuss50.dg.globe.GlobeBlockItem;
 import net.fabricmc.fabric.api.event.client.ClientTickCallback;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
-import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.PacketByteBuf;
 
@@ -49,7 +47,13 @@ public class GlobeSectionManagerClient {
 
 	public static void register() {
 		ClientTickCallback.EVENT.register(minecraftClient -> {
-			if (minecraftClient.world == null) return;
+			if (minecraftClient.world == null) {
+				//Ensure the state is not transfered across worlds
+				updateQueue.clear();
+				selectionMap.clear();
+				innerSelectionMap.clear();
+				return;
+			}
 			if (minecraftClient.world.getTime() % 20 == 0 || minecraftClient.player.inventory.getMainHandStack().getItem() instanceof GlobeBlockItem) {
 				processUpdateQueue();
 			}
