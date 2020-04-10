@@ -1,5 +1,6 @@
 package me.modmuss50.dg.utils;
 
+import com.mojang.authlib.GameProfile;
 import me.modmuss50.dg.globe.GlobeBlock;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import net.minecraft.block.BlockState;
@@ -8,6 +9,7 @@ import net.minecraft.client.network.OtherClientPlayerEntity;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
@@ -106,10 +108,12 @@ public class GlobeSection {
 			Identifier entityType = new Identifier(entityData.getString("entity_type"));
 
 			if (entityType.toString().equals("minecraft:player")) {
-
-				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, MinecraftClient.getInstance().getSession().getProfile());
+				GameProfile gameProfile = MinecraftClient.getInstance().getSession().getProfile();
+				if (entityData.contains("game_profile")) {
+					gameProfile = NbtHelper.toGameProfile(entityData.getCompound("game_profile"));
+				}
+				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile);
 				entity.fromTag(entityData.getCompound("entity_data"));
-
 
 				entities.add(entity);
 				Vec3d pos = new Vec3d(entityData.getDouble("entity_x"), entityData.getDouble("entity_y"), entityData.getDouble("entity_z"));
@@ -156,6 +160,13 @@ public class GlobeSection {
 			entityTag.putDouble("entity_z", relativePos.getZ());
 
 			compoundTag.put(entity.getUuidAsString(), entityTag);
+
+			if (entityType.toString().equals("minecraft:player")) {
+				PlayerEntity playerEntity = (PlayerEntity) entity;
+				CompoundTag tag = new CompoundTag();
+				NbtHelper.fromGameProfile(tag, playerEntity.getGameProfile());
+				compoundTag.put("game_profile", tag);
+			}
 		}
 		return compoundTag;
 	}

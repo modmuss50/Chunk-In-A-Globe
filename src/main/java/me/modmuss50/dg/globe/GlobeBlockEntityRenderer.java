@@ -23,6 +23,7 @@ import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.profiler.Profiler;
 
 import java.util.Map;
 
@@ -57,6 +58,8 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 		if (renderDepth > 2) {
 			return;
 		}
+		Profiler profiler = MinecraftClient.getInstance().getProfiler();
+		profiler.push("Globe renderer");
 		renderDepth ++;
 		if (globeID != -1) {
 			final float scale = inner ? 16F : 1 / 16F;
@@ -72,6 +75,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 			}
 
 			matrices.scale(scale, scale, scale);
+			profiler.push("blocks");
 			for (Map.Entry<BlockPos, BlockState> entry : section.getStateMap().entrySet()) {
 				matrices.push();
 				matrices.translate(entry.getKey().getX(), entry.getKey().getY(), entry.getKey().getZ());
@@ -86,7 +90,9 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				}
 				matrices.pop();
 			}
+			profiler.pop();
 
+			profiler.push("entities");
 			for (Entity entity : section.getEntities()) {
 				Vec3d position = section.getEntityVec3dMap().get(entity);
 
@@ -104,10 +110,11 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				entity.prevZ = 0;
 				MinecraftClient.getInstance().getEntityRenderManager().render(entity, 0.0D, 0.0D, 0.0D, entity.yaw, 1, matrices, vertexConsumers, light);
 				matrices.pop();
-
 			}
 			matrices.pop();
+			profiler.pop();
 		}
+		profiler.pop();
 		renderDepth --;
 	}
 

@@ -13,6 +13,7 @@ import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
 import net.fabricmc.fabric.api.tag.TagRegistry;
 import net.minecraft.block.Block;
@@ -21,6 +22,8 @@ import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemGroup;
+import net.minecraft.item.ItemStack;
+import net.minecraft.item.Items;
 import net.minecraft.recipe.SpecialRecipeSerializer;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.tag.Tag;
@@ -77,6 +80,16 @@ public class DimensionGlobe implements ModInitializer {
 			if (world.getDimension().getType() == globeDimension) {
 				BlockState state = world.getBlockState(blockPos);
 				if (state.getBlock() == globeBlock || state.getBlock() == Blocks.BARRIER) {
+					return ActionResult.FAIL;
+				}
+			}
+			return ActionResult.PASS;
+		});
+
+		UseBlockCallback.EVENT.register((playerEntity, world, hand, blockHitResult) -> {
+			if (world.getDimension().getType() == globeDimension) {
+				ItemStack stack = playerEntity.getStackInHand(hand);
+				if (stack.getItem() == Items.BARRIER) {
 					return ActionResult.FAIL;
 				}
 			}
