@@ -1,15 +1,17 @@
 package me.modmuss50.dg.dim;
 
-import net.fabricmc.fabric.api.dimension.v1.EntityPlacer;
-import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 
-public class ExitPlacer implements EntityPlacer {
+import java.util.Optional;
+
+public class ExitPlacer {
 
 	private BlockPos blockPos;
 
@@ -17,26 +19,22 @@ public class ExitPlacer implements EntityPlacer {
 		this.blockPos = blockPos;
 	}
 
-	@Override
-	public BlockPattern.TeleportTarget placeEntity(Entity teleported, ServerWorld destination, Direction portalDir, double horizontalOffset, double verticalOffset) {
+	public TeleportTarget placeEntity(Entity teleported, ServerWorld destination, Direction portalDir, double horizontalOffset, double verticalOffset) {
 		if (blockPos == null) {
 			if (teleported instanceof PlayerEntity) {
-				blockPos = getBedLocation((PlayerEntity) teleported, destination);
+				blockPos = getBedLocation((ServerPlayerEntity) teleported, destination);
 			}
 			if (blockPos == null) {
 				blockPos = destination.getSpawnPos();
 			}
 		}
-		return new BlockPattern.TeleportTarget(new Vec3d(blockPos), new Vec3d(0, 0, 0), 0);
+		return new TeleportTarget(Vec3d.of(blockPos), new Vec3d(0, 0, 0), 0, 0);
 	}
 
-	private static BlockPos getBedLocation(PlayerEntity playerEntity, ServerWorld destination) {
-		BlockPos bedLocation = playerEntity.getSpawnPosition();
-		if (bedLocation == null) {
-			return null;
-		}
-		return PlayerEntity.findRespawnPosition(destination, bedLocation, true)
-				.map(BlockPos::new)
+	private static BlockPos getBedLocation(ServerPlayerEntity playerEntity, ServerWorld destination) {
+		Optional<BlockPos> bedLocation = playerEntity.getSleepingPosition();
+		return bedLocation.flatMap(pos -> PlayerEntity.findRespawnPosition(destination, pos, 0, playerEntity.isSpawnPointSet(), true)
+				.map(BlockPos::new))
 				.orElse(null);
 	}
 }

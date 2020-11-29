@@ -14,6 +14,7 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.PersistentState;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 import java.util.Comparator;
@@ -26,8 +27,8 @@ public class GlobeManager extends PersistentState {
 	private static final ChunkTicketType<ChunkPos> GLOBE_CHUNK_LOADER = ChunkTicketType.create( DimensionGlobe.MOD_ID  + ":globe_chunk_loader", Comparator.comparingLong(ChunkPos::toLong));
 
 	public static GlobeManager getInstance(ServerWorld world) {
-		if (world.getDimension().getType() != DimensionType.OVERWORLD) {
-			world = world.getServer().getWorld(DimensionType.OVERWORLD);
+		if (world.getRegistryKey() != World.OVERWORLD) {
+			world = world.getServer().getWorld(World.OVERWORLD);
 		}
 		final ServerWorld serverWorld = world;
 		return serverWorld.getPersistentStateManager()

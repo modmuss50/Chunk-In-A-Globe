@@ -154,7 +154,7 @@ public class GlobeSection {
 
 			entityTag.put("entity_data", entityData);
 
-			Vec3d relativePos = entity.getPos().subtract(new Vec3d(origin));
+			Vec3d relativePos = entity.getPos().subtract(Vec3d.of(origin));
 			entityTag.putDouble("entity_x", relativePos.getX());
 			entityTag.putDouble("entity_y", relativePos.getY());
 			entityTag.putDouble("entity_z", relativePos.getZ());

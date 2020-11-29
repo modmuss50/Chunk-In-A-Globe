@@ -28,27 +28,27 @@ public class GlobeCraftingRecipe extends SpecialCraftingRecipe {
 	@Override
 	public ItemStack craft(CraftingInventory inv) {
 		for (int glassSlot : glassSlots) {
-			if (inv.getInvStack(glassSlot).getItem() != Items.GLASS) {
+			if (inv.getStack(glassSlot).getItem() != Items.GLASS) {
 				return ItemStack.EMPTY;
 			}
 		}
-		if (!inv.getInvStack(4).isEmpty()) {
+		if (!inv.getStack(4).isEmpty()) {
 			return ItemStack.EMPTY;
 		}
 		ItemStack blockStack = ItemStack.EMPTY;
 		for (int blockSlot : blockSlots) {
 			if (!blockStack.isEmpty()) {
-				if (blockStack.getItem() != inv.getInvStack(blockSlot).getItem()) {
+				if (blockStack.getItem() != inv.getStack(blockSlot).getItem()) {
 					return ItemStack.EMPTY;
 				}
 			}
-			blockStack = inv.getInvStack(blockSlot);
+			blockStack = inv.getStack(blockSlot);
 			if (blockStack.isEmpty()) {
 				return ItemStack.EMPTY;
 			}
 			if (blockStack.getItem() instanceof BlockItem) {
 				Block block = ((BlockItem) blockStack.getItem()).getBlock();
-				if (!block.matches(DimensionGlobe.BASE_BLOCK_TAG)) {
+				if (!block.isIn(DimensionGlobe.BASE_BLOCK_TAG)) {
 					return ItemStack.EMPTY;
 				}
 			} else {

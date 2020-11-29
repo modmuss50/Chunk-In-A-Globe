@@ -20,7 +20,7 @@ public class MixinEntity {
 
 	@Inject(method = "canExplosionDestroyBlock", at = @At("HEAD"), cancellable = true)
 	private void canExplosionDestroyBlock(Explosion explosion, BlockView blockView, BlockPos pos, BlockState state, float explosionPower, CallbackInfoReturnable<Boolean> infoReturnable) {
-		if (world.getDimension().getType() == DimensionGlobe.globeDimension && state.getBlock() == DimensionGlobe.globeBlock) {
+		if (world.getRegistryKey() == DimensionGlobe.globeDimension && state.getBlock() == DimensionGlobe.globeBlock) {
 			infoReturnable.setReturnValue(false);
 		}
 	}

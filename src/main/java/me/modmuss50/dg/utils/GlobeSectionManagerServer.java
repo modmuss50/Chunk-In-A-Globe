@@ -9,11 +9,11 @@ import net.fabricmc.fabric.api.network.PacketConsumer;
 import net.fabricmc.fabric.api.network.PacketContext;
 import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
 import net.minecraft.entity.player.PlayerEntity;
+import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.PacketByteBuf;
 import net.minecraft.util.math.Vec3d;
 
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ public class GlobeSectionManagerServer {
 		List<ServerPlayerEntity> nearbyPlayers = new ArrayList<>();
 
 		for (ServerPlayerEntity player : serverWorld.getPlayers()) {
-			if (player.squaredDistanceTo(new Vec3d(blockEntity.getPos())) < 64) {
+			if (player.squaredDistanceTo(Vec3d.of(blockEntity.getPos())) < 64) {
 				nearbyPlayers.add(player);
 			}
 		}

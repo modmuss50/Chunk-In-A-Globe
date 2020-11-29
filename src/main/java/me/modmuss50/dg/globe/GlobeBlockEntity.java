@@ -18,6 +18,8 @@ import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 
 public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEntityClientSerializable {
@@ -26,7 +28,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	private Block baseBlock;
 
 	private BlockPos returnPos;
-	private DimensionType returnDimType;
+	private RegistryKey<World> returnDimType;
 
 	public GlobeBlockEntity() {
 		super(DimensionGlobe.globeBlockEntityType);
@@ -105,7 +107,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			throw new RuntimeException();
 		}
 
-		if (playerEntity.world.getDimension().getType() == DimensionGlobe.globeDimension) {
+		if (playerEntity.world.getRegistryKey() == DimensionGlobe.globeDimension) {
 			transportPlayerOut(playerEntity);
 		} else {
 			if (globeID == -1) {
@@ -116,21 +118,21 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 		}
 	}
 
-	public void setReturnPos(BlockPos returnPos, DimensionType returnDimType) {
+	public void setReturnPos(BlockPos returnPos, RegistryKey<World> returnDimType) {
 		this.returnPos = returnPos;
 		this.returnDimType = returnDimType;
 		markDirty();
 	}
 
 	public void transportPlayerOut(ServerPlayerEntity playerEntity) {
-		if (getWorld().getDimension().getType() == DimensionGlobe.globeDimension) {
-			DimensionType teleportDim = returnDimType == null ? DimensionType.OVERWORLD : returnDimType;
+		if (getWorld().getRegistryKey() == DimensionGlobe.globeDimension) {
+			RegistryKey<World> teleportDim = returnDimType == null ? World.OVERWORLD : returnDimType;
 			FabricDimensions.teleport(playerEntity, teleportDim, new ExitPlacer(returnPos));
 		}
 	}
 
-	public DimensionType getReturnDimType() {
-		return returnDimType == null ? DimensionType.OVERWORLD : returnDimType;
+	public RegistryKey<World> getReturnDimType() {
+		return returnDimType == null ? World.OVERWORLD : returnDimType;
 	}
 
 	public BlockPos getInnerScanPos() {
@@ -141,7 +143,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	public boolean isInner() {
-		return getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+		return getWorld().getRegistryKey() == DimensionGlobe.globeDimension;
 	}
 
 	public int getGlobeID() {

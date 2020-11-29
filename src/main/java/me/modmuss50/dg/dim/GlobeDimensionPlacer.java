@@ -4,7 +4,6 @@ import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSection;
-import net.fabricmc.fabric.api.dimension.v1.EntityPlacer;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.pattern.BlockPattern;
@@ -13,9 +12,10 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.world.TeleportTarget;
 import net.minecraft.world.dimension.DimensionType;
 
-public class GlobeDimensionPlacer implements EntityPlacer {
+public class GlobeDimensionPlacer {
 
 	private int globeId = -1;
 	private DimensionType returnDimension = null;
@@ -32,8 +32,7 @@ public class GlobeDimensionPlacer implements EntityPlacer {
 		this.baseBlock = baseBlock;
 	}
 
-	@Override
-	public BlockPattern.TeleportTarget placeEntity(Entity entity, ServerWorld serverWorld, Direction direction, double v, double v1) {
+	public TeleportTarget placeEntity(Entity entity, ServerWorld serverWorld, Direction direction, double v, double v1) {
 		if (globeId == -1) {
 			throw new RuntimeException("Unknown globe: " + globeId);
 		}
@@ -43,7 +42,7 @@ public class GlobeDimensionPlacer implements EntityPlacer {
 		BlockPos spawnPos = globePos.add(8, 1, 8);
 		buildGlobe(serverWorld, globePos, spawnPos);
 
-		return new BlockPattern.TeleportTarget(new Vec3d(spawnPos).add(0.5, 0,0.5), new Vec3d(0, 0, 0), 0);
+		return new TeleportTarget(Vec3d.of(spawnPos).add(0.5, 0,0.5), new Vec3d(0, 0, 0), 0, 0);
 	}
 
 	private void buildGlobe(ServerWorld world, BlockPos globePos, BlockPos spawnPos) {

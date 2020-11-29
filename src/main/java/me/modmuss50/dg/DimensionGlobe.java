@@ -30,6 +30,8 @@ import net.minecraft.tag.Tag;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryKey;
+import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
 import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
 import net.minecraft.world.gen.chunk.ChunkGeneratorType;
@@ -42,7 +44,7 @@ public class DimensionGlobe implements ModInitializer {
 	public static GlobeBlockItem globeBlockItem;
 	public static BlockEntityType<GlobeBlockEntity> globeBlockEntityType;
 
-	public static FabricDimensionType globeDimension;
+	public static RegistryKey<World> globeDimension;
 	public static ChunkGeneratorType<ChunkGeneratorConfig, GlobeDimensionChunkGenerator> globeChunkGenerator;
 
 	public static final ItemGroup GLOBE_ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "globes"), () -> globeBlockItem.getWithBase(Blocks.OAK_PLANKS));
@@ -77,7 +79,7 @@ public class DimensionGlobe implements ModInitializer {
 		});
 
 		AttackBlockCallback.EVENT.register((playerEntity, world, hand, blockPos, direction) -> {
-			if (world.getDimension().getType() == globeDimension) {
+			if (world.getRegistryKey() == globeDimension) {
 				BlockState state = world.getBlockState(blockPos);
 				if (state.getBlock() == globeBlock || state.getBlock() == Blocks.BARRIER) {
 					return ActionResult.FAIL;
@@ -87,7 +89,7 @@ public class DimensionGlobe implements ModInitializer {
 		});
 
 		UseBlockCallback.EVENT.register((playerEntity, world, hand, blockHitResult) -> {
-			if (world.getDimension().getType() == globeDimension) {
+			if (world.getRegistryKey() == globeDimension) {
 				ItemStack stack = playerEntity.getStackInHand(hand);
 				if (stack.getItem() == Items.BARRIER) {
 					return ActionResult.FAIL;

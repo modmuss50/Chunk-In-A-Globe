@@ -108,7 +108,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				entity.prevX = 0;
 				entity.prevY = 0;
 				entity.prevZ = 0;
-				MinecraftClient.getInstance().getEntityRenderManager().render(entity, 0.0D, 0.0D, 0.0D, entity.yaw, 1, matrices, vertexConsumers, light);
+				MinecraftClient.getInstance().getEntityRenderDispatcher().render(entity, 0.0D, 0.0D, 0.0D, entity.yaw, 1, matrices, vertexConsumers, light);
 				matrices.pop();
 			}
 			matrices.pop();
