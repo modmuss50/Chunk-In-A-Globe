@@ -20,6 +20,7 @@ import net.minecraft.world.World;
 import java.util.Collections;
 import java.util.List;
 
+@SuppressWarnings("deprecation")
 public class GlobeBlock extends BlockWithEntity {
 	public GlobeBlock() {
 		super(FabricBlockSettings.of(Material.GLASS)

@@ -9,6 +9,7 @@ import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.util.Identifier;
 
+@SuppressWarnings("deprecation")
 public class DimensionGlobeClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {

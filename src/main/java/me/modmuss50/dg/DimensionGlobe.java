@@ -1,17 +1,14 @@
 package me.modmuss50.dg;
 
 import me.modmuss50.dg.crafting.GlobeCraftingRecipe;
-import me.modmuss50.dg.dim.GlobeDimension;
-import me.modmuss50.dg.dim.GlobeDimensionChunkGenerator;
-import me.modmuss50.dg.dim.GlobeDimensionPlacer;
 import me.modmuss50.dg.globe.GlobeBlock;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import me.modmuss50.dg.globe.GlobeBlockItem;
+import me.modmuss50.dg.globe.VoidChunkGenerator;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
-import net.fabricmc.fabric.api.dimension.v1.FabricDimensionType;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.world.WorldTickCallback;
@@ -33,9 +30,8 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 import net.minecraft.world.dimension.DimensionType;
-import net.minecraft.world.gen.chunk.ChunkGeneratorConfig;
-import net.minecraft.world.gen.chunk.ChunkGeneratorType;
 
+@SuppressWarnings("deprecation")
 public class DimensionGlobe implements ModInitializer {
 
 	public static final String MOD_ID = "globedimension";
@@ -45,7 +41,6 @@ public class DimensionGlobe implements ModInitializer {
 	public static BlockEntityType<GlobeBlockEntity> globeBlockEntityType;
 
 	public static RegistryKey<World> globeDimension;
-	public static ChunkGeneratorType<ChunkGeneratorConfig, GlobeDimensionChunkGenerator> globeChunkGenerator;
 
 	public static final ItemGroup GLOBE_ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "globes"), () -> globeBlockItem.getWithBase(Blocks.OAK_PLANKS));
 	public static final Tag<Block> BASE_BLOCK_TAG = TagRegistry.block(new Identifier(MOD_ID, "base_blocks"));
@@ -65,15 +60,12 @@ public class DimensionGlobe implements ModInitializer {
 		globeBlockEntityType = BlockEntityType.Builder.create(GlobeBlockEntity::new, globeBlock).build(null);
 		Registry.register(Registry.BLOCK_ENTITY_TYPE, globeID, globeBlockEntityType);
 
-		globeDimension = FabricDimensionType.builder()
-				.factory(GlobeDimension::new)
-				.defaultPlacer(new GlobeDimensionPlacer())
-				.buildAndRegister(globeID);
+		Registry.register(Registry.CHUNK_GENERATOR, new Identifier("globedimension", "globe"), VoidChunkGenerator.CODEC);
 
-		globeChunkGenerator = FabricChunkGeneratorType.register(globeID, GlobeDimensionChunkGenerator::new, ChunkGeneratorConfig::new, false);
+		globeDimension = RegistryKey.of(Registry.DIMENSION, new Identifier("globedimension", "globe"));
 
 		WorldTickCallback.EVENT.register(world -> {
-			if (!world.isClient && world.getDimension().getType() == DimensionType.OVERWORLD) {
+			if (!world.isClient && world.getRegistryKey().equals(DimensionType.OVERWORLD_REGISTRY_KEY)) {
 				GlobeManager.getInstance((ServerWorld) world).tick();
 			}
 		});
