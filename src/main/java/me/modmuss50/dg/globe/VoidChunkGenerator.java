@@ -16,22 +16,15 @@ import net.minecraft.world.gen.chunk.StructuresConfig;
 import net.minecraft.world.gen.chunk.VerticalBlockSample;
 
 public class VoidChunkGenerator extends ChunkGenerator {
-	// Just an example of adding a custom boolean
-	protected final boolean customBool;
 
 	public static final Codec<VoidChunkGenerator> CODEC = RecordCodecBuilder.create((instance) ->
-			instance.group(
-					BiomeSource.CODEC.fieldOf("biome_source")
-							.forGetter((generator) -> generator.biomeSource),
-					Codec.BOOL.fieldOf("custom_bool")
-							.forGetter((generator) -> generator.customBool)
-			)
-			.apply(instance, instance.stable(VoidChunkGenerator::new))
-	);
+		instance.group(
+			BiomeSource.CODEC.fieldOf("biome_source").forGetter((generator) -> generator.biomeSource)
+		)
+		.apply(instance, instance.stable(VoidChunkGenerator::new)));
 
-	public VoidChunkGenerator(BiomeSource biomeSource, boolean customBool) {
+	public VoidChunkGenerator(BiomeSource biomeSource) {
 		super(biomeSource, new StructuresConfig(false));
-		this.customBool = customBool;
 	}
 
 	@Override
