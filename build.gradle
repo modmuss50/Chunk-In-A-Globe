@@ -1,5 +1,5 @@
 plugins {
-	id 'fabric-loom' version '0.5-SNAPSHOT'
+	id 'fabric-loom' version '0.7-SNAPSHOT'
 	id 'maven-publish'
 }
 
@@ -26,13 +26,8 @@ dependencies {
 processResources {
 	inputs.property "version", project.version
 
-	from(sourceSets.main.resources.srcDirs) {
-		include "fabric.mod.json"
+	filesMatching("fabric.mod.json") {
 		expand "version": project.version
-	}
-
-	from(sourceSets.main.resources.srcDirs) {
-		exclude "fabric.mod.json"
 	}
 }
 
@@ -73,11 +68,5 @@ publishing {
 	repositories {
 		// uncomment to publish to the local maven
 		// mavenLocal()
-	}
-}
-
-task printClasspath {
-	doLast {
-		print configurations.runtimeClasspath.getFiles().stream().map {it.toString() }.collect(java.util.stream.Collectors.joining(","))
 	}
 }
