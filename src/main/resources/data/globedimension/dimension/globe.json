@@ -1,0 +1,10 @@
+{
+  "generator": {
+    "type": "globedimension:globe",
+    "biome_source": {
+      "type": "minecraft:fixed",
+      "biome": "minecraft:plains"
+    }
+  },
+  "type": "globedimension:globe_type"
+}

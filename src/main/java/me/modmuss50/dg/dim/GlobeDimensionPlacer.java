@@ -6,26 +6,26 @@ import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSection;
 import net.minecraft.block.Block;
 import net.minecraft.block.Blocks;
-import net.minecraft.block.pattern.BlockPattern;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
+import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.TeleportTarget;
-import net.minecraft.world.dimension.DimensionType;
+import net.minecraft.world.World;
 
 public class GlobeDimensionPlacer {
 
 	private int globeId = -1;
-	private DimensionType returnDimension = null;
+	private RegistryKey<World> returnDimension = null;
 	private BlockPos returnPos = null;
 	private Block baseBlock = null;
 
 	public GlobeDimensionPlacer() {
 	}
 
-	public GlobeDimensionPlacer(int globeId, DimensionType dimensionType, BlockPos returnPos, Block baseBlock) {
+	public GlobeDimensionPlacer(int globeId, RegistryKey<World> dimensionType, BlockPos returnPos, Block baseBlock) {
 		this.globeId = globeId;
 		this.returnDimension = dimensionType;
 		this.returnPos = returnPos;

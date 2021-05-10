@@ -14,6 +14,7 @@ import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 
 
+@SuppressWarnings("deprecation")
 public class GlobeSectionManagerClient {
 
 	private static Int2ObjectMap<GlobeSection> selectionMap = new Int2ObjectArrayMap<>();
@@ -61,6 +62,7 @@ public class GlobeSectionManagerClient {
 		});
 	}
 
+	@SuppressWarnings("resource")
 	private static void processUpdateQueue() {
 		PacketByteBuf buf = new PacketByteBuf(Unpooled.buffer());
 

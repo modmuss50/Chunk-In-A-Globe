@@ -8,6 +8,7 @@ import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.block.Block;
+import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.CompoundTag;
@@ -16,12 +17,13 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
+@SuppressWarnings("deprecation")
 public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEntityClientSerializable {
 
 	private int globeID = -1;
@@ -52,8 +54,8 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
-		super.fromTag(tag);
+	public void fromTag(BlockState state, CompoundTag tag) {
+		super.fromTag(state, tag);
 		globeID = tag.getInt("globe_id");
 		if (tag.contains("base_block")) {
 			Identifier identifier = new Identifier(tag.getString("base_block"));
@@ -65,12 +67,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			returnPos = new BlockPos(tag.getInt("return_x"), tag.getInt("return_y"), tag.getInt("return_z"));
 
 			Identifier returnType = new Identifier(tag.getString("return_dim"));
-			if (Registry.DIMENSION_TYPE.getOrEmpty(returnType).isPresent()) {
-				returnDimType = Registry.DIMENSION_TYPE.get(returnType);
-			} else {
-				returnPos = null;
-				returnDimType = null;
-			}
+			returnDimType = RegistryKey.of(Registry.DIMENSION, returnType);
 		}
 	}
 
@@ -85,7 +82,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			tag.putInt("return_x", returnPos.getX());
 			tag.putInt("return_y", returnPos.getY());
 			tag.putInt("return_z", returnPos.getZ());
-			tag.putString("return_dim", Registry.DIMENSION_TYPE.getId(returnDimType).toString());
+			tag.putString("return_dim", returnDimType.getValue().toString());
 		}
 
 		return super.toTag(tag);
@@ -113,8 +110,9 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			if (globeID == -1) {
 				newGlobe();
 			}
-
-			FabricDimensions.teleport(playerEntity, DimensionGlobe.globeDimension, new GlobeDimensionPlacer(globeID, world.getDimension().getType(), getPos(), baseBlock));
+			ServerWorld targetWorld = playerEntity.getServer().getWorld(DimensionGlobe.globeDimension);
+			GlobeDimensionPlacer placer = new GlobeDimensionPlacer(globeID, world.getRegistryKey(), getPos(), baseBlock);
+			FabricDimensions.teleport(playerEntity, targetWorld, placer.placeEntity(playerEntity, targetWorld, Direction.NORTH, 0, 0));
 		}
 	}
 
@@ -127,7 +125,9 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	public void transportPlayerOut(ServerPlayerEntity playerEntity) {
 		if (getWorld().getRegistryKey() == DimensionGlobe.globeDimension) {
 			RegistryKey<World> teleportDim = returnDimType == null ? World.OVERWORLD : returnDimType;
-			FabricDimensions.teleport(playerEntity, teleportDim, new ExitPlacer(returnPos));
+			ServerWorld world = playerEntity.getServer().getWorld(teleportDim);
+			ExitPlacer placer = new ExitPlacer(returnPos);
+			FabricDimensions.teleport(playerEntity, world, placer.placeEntity(playerEntity, world, Direction.NORTH, 0, 0));
 		}
 	}
 
@@ -156,7 +156,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 
 	@Override
 	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(compoundTag);
+		fromTag(null, compoundTag);
 	}
 
 	@Override

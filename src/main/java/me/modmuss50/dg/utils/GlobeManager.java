@@ -9,22 +9,16 @@ import it.unimi.dsi.fastutil.ints.IntList;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.world.ChunkTicketType;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
 import net.minecraft.world.PersistentState;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
-
-import java.util.Comparator;
 
 public class GlobeManager extends PersistentState {
 
 	private static final String SAVE_KEY = DimensionGlobe.MOD_ID + "_globes";
 	private static long KEEP_ALIVE_TIME = 20 * 10; // 10 seconds
-
-	private static final ChunkTicketType<ChunkPos> GLOBE_CHUNK_LOADER = ChunkTicketType.create( DimensionGlobe.MOD_ID  + ":globe_chunk_loader", Comparator.comparingLong(ChunkPos::toLong));
 
 	public static GlobeManager getInstance(ServerWorld world) {
 		if (world.getRegistryKey() != World.OVERWORLD) {
@@ -58,6 +52,7 @@ public class GlobeManager extends PersistentState {
 		return globes.get(id);
 	}
 
+	@SuppressWarnings("deprecation")
 	public void tick() {
 		final long currentTime = world.getTime();
 		final IntList destoryQueue = new IntArrayList();
@@ -150,7 +145,7 @@ public class GlobeManager extends PersistentState {
 		}
 
 		public BlockPos getGlobeLocation() {
-			BlockPos chunkPos = getChunkPos().getCenterBlockPos();
+			BlockPos chunkPos = getChunkPos().getStartPos();
 			return new BlockPos(chunkPos.getX(), 128, chunkPos.getZ());
 		}
 

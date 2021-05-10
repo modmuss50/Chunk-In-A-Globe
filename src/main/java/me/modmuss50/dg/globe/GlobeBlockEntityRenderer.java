@@ -36,7 +36,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 
 	@Override
 	public void render(GlobeBlockEntity blockEntity, float tickDelta, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay) {
-		final boolean inner = blockEntity.getWorld().getDimension().getType() == DimensionGlobe.globeDimension;
+		final boolean inner = blockEntity.getWorld().getRegistryKey().equals(DimensionGlobe.globeDimension);
 		renderGlobe(inner, blockEntity.getGlobeID(), matrices, vertexConsumers, light);
 		if (inner) {
 			matrices.push();
