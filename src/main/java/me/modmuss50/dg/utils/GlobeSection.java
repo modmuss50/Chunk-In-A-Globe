@@ -10,7 +10,7 @@ import net.minecraft.client.world.ClientWorld;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
@@ -68,11 +68,11 @@ public class GlobeSection {
 		}
 	}
 
-	public void fromBlockTag(CompoundTag tag) {
+	public void fromBlockTag(NbtCompound tag) {
 		stateMap.clear();
 		globeData.clear();
 		for (String key : tag.getKeys()) {
-			CompoundTag entryTag = tag.getCompound(key);
+			NbtCompound entryTag = tag.getCompound(key);
 			BlockState state = NbtHelper.toBlockState(entryTag.getCompound("state"));
 			BlockPos pos = NbtHelper.toBlockPos(entryTag.getCompound("pos"));
 			stateMap.put(pos, state);
@@ -82,11 +82,11 @@ public class GlobeSection {
 		}
 	}
 
-	public CompoundTag toBlockTag() {
-		CompoundTag compoundTag = new CompoundTag();
+	public NbtCompound toBlockTag() {
+		NbtCompound compoundTag = new NbtCompound();
 		for (Map.Entry<BlockPos, BlockState> entry : stateMap.entrySet()) {
 			BlockState state = entry.getValue();
-			CompoundTag entryTag = new CompoundTag();
+			NbtCompound entryTag = new NbtCompound();
 
 			entryTag.put("state", NbtHelper.fromBlockState(state));
 			entryTag.put("pos", NbtHelper.fromBlockPos(entry.getKey()));
@@ -100,11 +100,11 @@ public class GlobeSection {
 		return compoundTag;
 	}
 
-	public void fromEntityTag(CompoundTag tag, World world) {
+	public void fromEntityTag(NbtCompound tag, World world) {
 		entities.clear();
 		entityVec3dMap.clear();
 		for (String uuid : tag.getKeys()) {
-			CompoundTag entityData = tag.getCompound(uuid);
+			NbtCompound entityData = tag.getCompound(uuid);
 			Identifier entityType = new Identifier(entityData.getString("entity_type"));
 
 			if (entityType.toString().equals("minecraft:player")) {
@@ -113,7 +113,7 @@ public class GlobeSection {
 					gameProfile = NbtHelper.toGameProfile(entityData.getCompound("game_profile"));
 				}
 				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile);
-				entity.fromTag(entityData.getCompound("entity_data"));
+				entity.readNbt(entityData.getCompound("entity_data"));
 
 				entities.add(entity);
 				Vec3d pos = new Vec3d(entityData.getDouble("entity_x"), entityData.getDouble("entity_y"), entityData.getDouble("entity_z"));
@@ -130,7 +130,7 @@ public class GlobeSection {
 					continue;
 				}
 
-				entity.fromTag(entityData.getCompound("entity_data"));
+				entity.readNbt(entityData.getCompound("entity_data"));
 				entity.setPos(0, 0, 0);
 
 				entities.add(entity);
@@ -141,14 +141,14 @@ public class GlobeSection {
 		}
 	}
 
-	public CompoundTag toEntityTag(BlockPos origin) {
-		CompoundTag compoundTag = new CompoundTag();
+	public NbtCompound toEntityTag(BlockPos origin) {
+		NbtCompound compoundTag = new NbtCompound();
 		for (Entity entity : entities) {
-			CompoundTag entityTag = new CompoundTag();
+			NbtCompound entityTag = new NbtCompound();
 			Identifier entityType = Registry.ENTITY_TYPE.getId(entity.getType());
 			entityTag.putString("entity_type", entityType.toString());
-			CompoundTag entityData = new CompoundTag();
-			entity.toTag(entityData);
+			NbtCompound entityData = new NbtCompound();
+			entity.writeNbt(entityData);
 
 			entityData.remove("Passengers");
 
@@ -163,8 +163,8 @@ public class GlobeSection {
 
 			if (entityType.toString().equals("minecraft:player")) {
 				PlayerEntity playerEntity = (PlayerEntity) entity;
-				CompoundTag tag = new CompoundTag();
-				NbtHelper.fromGameProfile(tag, playerEntity.getGameProfile());
+				NbtCompound tag = new NbtCompound();
+				NbtHelper.writeGameProfile(tag, playerEntity.getGameProfile());
 				compoundTag.put("game_profile", tag);
 			}
 		}

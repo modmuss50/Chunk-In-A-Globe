@@ -62,10 +62,10 @@ public class GlobeSectionManagerServer {
 		buf.writeBoolean(blockEntity.isInner());
 		if (blocks) {
 			buf.writeBoolean(true);
-			buf.writeCompoundTag(section.toBlockTag());
+			buf.writeNbt(section.toBlockTag());
 		} else {
 			buf.writeBoolean(false);
-			buf.writeCompoundTag(section.toEntityTag(blockEntity.isInner() ? blockEntity.getInnerScanPos() : globe.getGlobeLocation()));
+			buf.writeNbt(section.toEntityTag(blockEntity.isInner() ? blockEntity.getInnerScanPos() : globe.getGlobeLocation()));
 		}
 
 		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);
@@ -114,10 +114,10 @@ public class GlobeSectionManagerServer {
 		buf.writeBoolean(false);
 		if (blocks) {
 			buf.writeBoolean(true);
-			buf.writeCompoundTag(section.toBlockTag());
+			buf.writeNbt(section.toBlockTag());
 		} else {
 			buf.writeBoolean(false);
-			buf.writeCompoundTag(section.toEntityTag(globe.getGlobeLocation()));
+			buf.writeNbt(section.toEntityTag(globe.getGlobeLocation()));
 		}
 
 		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);

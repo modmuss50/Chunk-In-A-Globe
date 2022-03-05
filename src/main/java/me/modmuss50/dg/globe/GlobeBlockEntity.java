@@ -11,7 +11,7 @@ import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
@@ -54,8 +54,8 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	@Override
-	public void fromTag(BlockState state, CompoundTag tag) {
-		super.fromTag(state, tag);
+	public void readNbt(BlockState state, NbtCompound tag) {
+		super.readNbt(state, tag);
 		globeID = tag.getInt("globe_id");
 		if (tag.contains("base_block")) {
 			Identifier identifier = new Identifier(tag.getString("base_block"));
@@ -67,12 +67,12 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			returnPos = new BlockPos(tag.getInt("return_x"), tag.getInt("return_y"), tag.getInt("return_z"));
 
 			Identifier returnType = new Identifier(tag.getString("return_dim"));
-			returnDimType = RegistryKey.of(Registry.DIMENSION, returnType);
+			returnDimType = RegistryKey.of(Registry.WORLD_KEY, returnType);
 		}
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
+	public NbtCompound writeNbt(NbtCompound tag) {
 		tag.putInt("globe_id", globeID);
 		if (baseBlock != null) {
 			tag.putString("base_block", Registry.BLOCK.getId(baseBlock).toString());
@@ -85,7 +85,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			tag.putString("return_dim", returnDimType.getValue().toString());
 		}
 
-		return super.toTag(tag);
+		return super.writeNbt(tag);
 	}
 
 
@@ -155,13 +155,13 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	@Override
-	public void fromClientTag(CompoundTag compoundTag) {
-		fromTag(null, compoundTag);
+	public void fromClientTag(NbtCompound compoundTag) {
+		readNbt(null, compoundTag);
 	}
 
 	@Override
-	public CompoundTag toClientTag(CompoundTag compoundTag) {
-		return toTag(compoundTag);
+	public NbtCompound toClientTag(NbtCompound compoundTag) {
+		return writeNbt(compoundTag);
 	}
 
 	public Block getBaseBlock() {

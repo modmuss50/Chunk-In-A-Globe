@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntArrayList;
 import it.unimi.dsi.fastutil.ints.IntList;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.ChunkPos;
@@ -95,15 +95,15 @@ public class GlobeManager extends PersistentState {
 	}
 
 	@Override
-	public void fromTag(CompoundTag tag) {
+	public void fromNbt(NbtCompound tag) {
 		globes.clear();
-		CompoundTag globesTag = tag.getCompound("globes");
+		NbtCompound globesTag = tag.getCompound("globes");
 		for (String key : globesTag.getKeys()) {
 			int keyID = Integer.parseInt(key);
 			globes.put(keyID, new Globe(keyID, globesTag.getCompound(key)));
 		}
 
-		CompoundTag tickingGlobesTag = tag.getCompound("ticking_globes");
+		NbtCompound tickingGlobesTag = tag.getCompound("ticking_globes");
 		for (String key : tickingGlobesTag.getKeys()) {
 			int keyID = Integer.parseInt(key);
 			tickingGlobes.put(keyID, world.getTime());
@@ -111,14 +111,14 @@ public class GlobeManager extends PersistentState {
 	}
 
 	@Override
-	public CompoundTag toTag(CompoundTag tag) {
-		CompoundTag globesTag = new CompoundTag();
+	public NbtCompound writeNbt(NbtCompound tag) {
+		NbtCompound globesTag = new NbtCompound();
 		for (Int2ObjectMap.Entry<Globe> entry : globes.int2ObjectEntrySet()) {
 			globesTag.put(entry.getIntKey() + "", entry.getValue().toTag());
 		}
 		tag.put("globes", globesTag);
 
-		CompoundTag tickingGlobesTag = new CompoundTag();
+		NbtCompound tickingGlobesTag = new NbtCompound();
 		for (Int2LongMap.Entry entry : tickingGlobes.int2LongEntrySet()) {
 			tickingGlobesTag.putBoolean(entry.getIntKey() + "", true);
 		}
@@ -135,7 +135,7 @@ public class GlobeManager extends PersistentState {
 			this.id = id;
 		}
 
-		public Globe(int id, CompoundTag compoundTag) {
+		public Globe(int id, NbtCompound compoundTag) {
 			this(id);
 			fromTag(compoundTag);
 		}
@@ -149,12 +149,12 @@ public class GlobeManager extends PersistentState {
 			return new BlockPos(chunkPos.getX(), 128, chunkPos.getZ());
 		}
 
-		public void fromTag(CompoundTag tag) {
+		public void fromTag(NbtCompound tag) {
 
 		}
 
-		public CompoundTag toTag() {
-			return new CompoundTag();
+		public NbtCompound toTag() {
+			return new NbtCompound();
 		}
 
 		public void updateBlockSection(ServerWorld world, boolean inner, GlobeBlockEntity blockEntity) {

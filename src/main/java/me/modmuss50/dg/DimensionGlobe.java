@@ -62,7 +62,7 @@ public class DimensionGlobe implements ModInitializer {
 
 		Registry.register(Registry.CHUNK_GENERATOR, new Identifier("globedimension", "globe"), VoidChunkGenerator.CODEC);
 
-		globeDimension = RegistryKey.of(Registry.DIMENSION, new Identifier("globedimension", "globe"));
+		globeDimension = RegistryKey.of(Registry.WORLD_KEY, new Identifier("globedimension", "globe"));
 
 		WorldTickCallback.EVENT.register(world -> {
 			if (!world.isClient && world.getRegistryKey().equals(DimensionType.OVERWORLD_REGISTRY_KEY)) {

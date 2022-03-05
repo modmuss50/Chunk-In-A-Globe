@@ -68,7 +68,7 @@ public class GlobeBlock extends BlockWithEntity {
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity instanceof GlobeBlockEntity) {
 			ItemStack stack = DimensionGlobe.globeBlockItem.getWithBase(((GlobeBlockEntity) blockEntity).getBaseBlock());
-			stack.getTag().putInt("globe_id", ((GlobeBlockEntity) blockEntity).getGlobeID());
+			stack.getNbt().putInt("globe_id", ((GlobeBlockEntity) blockEntity).getGlobeID());
 			return stack;
 		}
 		return ItemStack.EMPTY;

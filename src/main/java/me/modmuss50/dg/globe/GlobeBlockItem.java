@@ -9,7 +9,7 @@ import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.ActionResult;
 
@@ -36,9 +36,9 @@ public class GlobeBlockItem extends BlockItem {
 	public ItemStack getWithBase(Block base) {
 		Identifier identifier = Registry.BLOCK.getId(base);
 		ItemStack stack = new ItemStack(this);
-		CompoundTag compoundTag = new CompoundTag();
+		NbtCompound compoundTag = new NbtCompound();
 		compoundTag.putString("base_block", identifier.toString());
-		stack.setTag(compoundTag);
+		stack.setNbt(compoundTag);
 
 		return stack;
 	}
@@ -56,15 +56,15 @@ public class GlobeBlockItem extends BlockItem {
 
 	@Override
 	protected boolean postPlacement(BlockPos pos, World world, PlayerEntity player, ItemStack stack, BlockState state) {
-		if (stack.hasTag() && stack.getTag().contains("base_block")) {
+		if (stack.hasNbt() && stack.getNbt().contains("base_block")) {
 			BlockEntity blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof GlobeBlockEntity) {
-				Identifier identifier = new Identifier(stack.getTag().getString("base_block"));
+				Identifier identifier = new Identifier(stack.getNbt().getString("base_block"));
 				if (Registry.BLOCK.getOrEmpty(identifier).isPresent()) {
 					((GlobeBlockEntity) blockEntity).setBaseBlock(Registry.BLOCK.get(identifier));
 				}
-				if (stack.getTag().contains("globe_id")) {
-					((GlobeBlockEntity) blockEntity).setGlobeID(stack.getTag().getInt("globe_id"));
+				if (stack.getNbt().contains("globe_id")) {
+					((GlobeBlockEntity) blockEntity).setGlobeID(stack.getNbt().getInt("globe_id"));
 				}
 			}
 		}

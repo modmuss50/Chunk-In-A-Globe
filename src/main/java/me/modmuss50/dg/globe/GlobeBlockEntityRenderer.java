@@ -126,10 +126,10 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 		Sprite blockSprite;
 		if (baseBlock != null) {
 			BakedModel bakedModel = renderManager.getModel(baseBlock.getDefaultState());
-			blockSprite =  bakedModel.getSprite();
+			blockSprite =  bakedModel.getParticleSprite();
 			blockTexture = new Identifier(blockSprite.getId().getNamespace(), "textures/" + blockSprite.getId().getPath() + ".png");
 		} else {
-			blockSprite =  renderManager.getModel(Blocks.STONE.getDefaultState()).getSprite();
+			blockSprite =  renderManager.getModel(Blocks.STONE.getDefaultState()).getParticleSprite();
 		}
 		BaseModel baseModel = new BaseModel(blockSprite);
 		baseModel.render(matrices, vertexConsumers.getBuffer(RenderLayer.getEntitySolid(blockTexture)), light, overlay, 1F, 1F, 1F, 1F);

@@ -6,7 +6,7 @@ import me.modmuss50.dg.utils.GlobeSectionManagerClient;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
 
 @SuppressWarnings("deprecation")
@@ -18,7 +18,7 @@ public class DimensionGlobeClient implements ClientModInitializer {
 			final int id = packetByteBuf.readInt();
 			final boolean inner = packetByteBuf.readBoolean();
 			final boolean blocks = packetByteBuf.readBoolean();
-			final CompoundTag data = packetByteBuf.readCompoundTag();
+			final NbtCompound data = packetByteBuf.readNbt();
 
 			packetContext.getTaskQueue().execute(() -> {
 				final GlobeSection section = GlobeSectionManagerClient.getGlobeSection(id, inner);
