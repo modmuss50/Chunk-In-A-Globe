@@ -11,5 +11,7 @@
   "respawn_anchor_works": false,
   "bed_works" : false,
   "piglin_safe" : false,
-  "effects" : "minecraft:the_nether"
+  "effects" : "minecraft:the_nether",
+  "min_y" : 0,
+  "height" : 256
 }

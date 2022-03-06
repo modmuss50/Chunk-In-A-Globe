@@ -1,5 +1,10 @@
 package me.modmuss50.dg.globe;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.utils.GlobeSection;
 import me.modmuss50.dg.utils.GlobeSectionManagerClient;
@@ -9,12 +14,12 @@ import net.minecraft.block.Blocks;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.model.ModelPart.Cuboid;
 import net.minecraft.client.render.OverlayTexture;
 import net.minecraft.client.render.RenderLayer;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.BlockRenderManager;
-import net.minecraft.client.render.block.entity.BlockEntityRenderDispatcher;
 import net.minecraft.client.render.block.entity.BlockEntityRenderer;
 import net.minecraft.client.render.model.BakedModel;
 import net.minecraft.client.texture.Sprite;
@@ -25,12 +30,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
-import java.util.Map;
-
-public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEntity> {
-	public GlobeBlockEntityRenderer(BlockEntityRenderDispatcher dispatcher) {
-		super(dispatcher);
-	}
+public class GlobeBlockEntityRenderer implements BlockEntityRenderer<GlobeBlockEntity> {
 
 	private static int renderDepth = 0;
 
@@ -108,7 +108,7 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 				entity.prevX = 0;
 				entity.prevY = 0;
 				entity.prevZ = 0;
-				MinecraftClient.getInstance().getEntityRenderDispatcher().render(entity, 0.0D, 0.0D, 0.0D, entity.yaw, 1, matrices, vertexConsumers, light);
+				MinecraftClient.getInstance().getEntityRenderDispatcher().render(entity, 0.0D, 0.0D, 0.0D, entity.getYaw(), 1, matrices, vertexConsumers, light);
 				matrices.pop();
 			}
 			matrices.pop();
@@ -142,14 +142,18 @@ public class GlobeBlockEntityRenderer extends BlockEntityRenderer<GlobeBlockEnti
 
 		public BaseModel(Sprite sprite) {
 			super(RenderLayer::getEntityCutoutNoCull);
-			textureHeight = sprite.getHeight();
-			textureWidth = sprite.getWidth();
 
-			base = new ModelPart(this);
+			List<Cuboid> cuboids = new ArrayList<>();
+			Map<String, ModelPart> children = new HashMap<>();
+			
+			Cuboid cuboid = new Cuboid(sprite.getX(), sprite.getY(),
+					0, 0, 0,
+					16, 1, 16,
+					0, 0, 0,
+					false, sprite.getWidth(), sprite.getHeight());
+			cuboids.add(cuboid);
 
-			base.addCuboid(null, 0, 0, 0,
-			16, 1, 16,
-			0F, 0, 0);
+			base = new ModelPart(cuboids, children);
 		}
 
 		@Override

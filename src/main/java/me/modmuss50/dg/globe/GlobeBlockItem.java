@@ -17,6 +17,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.registry.Registry;
+import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.World;
 
 public class GlobeBlockItem extends BlockItem {
@@ -27,8 +28,9 @@ public class GlobeBlockItem extends BlockItem {
 	@Override
 	public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
 		if (this.isIn(group)) {
-			for (Block block : DimensionGlobe.BASE_BLOCK_TAG.values()) {
-				stacks.add(getWithBase(block));
+			Iterable<RegistryEntry<Block>> entries = Registry.BLOCK.iterateEntries(DimensionGlobe.BASE_BLOCK_TAG);
+			for (RegistryEntry<Block> block : entries) {
+				stacks.add(getWithBase(block.value()));
 			}
 		}
 	}

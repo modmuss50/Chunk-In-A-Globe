@@ -56,7 +56,7 @@ public class GlobeSectionManagerClient {
 				innerSelectionMap.clear();
 				return;
 			}
-			if (minecraftClient.world.getTime() % 20 == 0 || minecraftClient.player.inventory.getMainHandStack().getItem() instanceof GlobeBlockItem) {
+			if (minecraftClient.world.getTime() % 20 == 0 || minecraftClient.player.getMainHandStack().getItem() instanceof GlobeBlockItem) {
 				processUpdateQueue();
 			}
 		});

@@ -4,7 +4,7 @@ import me.modmuss50.dg.globe.GlobeBlockEntityRenderer;
 import me.modmuss50.dg.utils.GlobeSection;
 import me.modmuss50.dg.utils.GlobeSectionManagerClient;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.rendereregistry.v1.BlockEntityRendererRegistry;
+import net.fabricmc.fabric.api.client.rendering.v1.BlockEntityRendererRegistry;
 import net.fabricmc.fabric.api.network.ClientSidePacketRegistry;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.Identifier;
@@ -13,7 +13,7 @@ import net.minecraft.util.Identifier;
 public class DimensionGlobeClient implements ClientModInitializer {
 	@Override
 	public void onInitializeClient() {
-		BlockEntityRendererRegistry.INSTANCE.register(DimensionGlobe.globeBlockEntityType, GlobeBlockEntityRenderer::new);
+		BlockEntityRendererRegistry.register(DimensionGlobe.globeBlockEntityType, (context) -> new GlobeBlockEntityRenderer());
 		ClientSidePacketRegistry.INSTANCE.register(new Identifier(DimensionGlobe.MOD_ID, "section_update"), (packetContext, packetByteBuf) -> {
 			final int id = packetByteBuf.readInt();
 			final boolean inner = packetByteBuf.readBoolean();

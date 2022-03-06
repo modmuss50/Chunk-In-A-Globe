@@ -5,17 +5,18 @@ import me.modmuss50.dg.dim.ExitPlacer;
 import me.modmuss50.dg.dim.GlobeDimensionPlacer;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
-import net.fabricmc.fabric.api.block.entity.BlockEntityClientSerializable;
 import net.fabricmc.fabric.api.dimension.v1.FabricDimensions;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.network.Packet;
+import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.Tickable;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
@@ -23,8 +24,7 @@ import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
-@SuppressWarnings("deprecation")
-public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEntityClientSerializable {
+public class GlobeBlockEntity extends BlockEntity {
 
 	private int globeID = -1;
 	private Block baseBlock;
@@ -32,30 +32,29 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	private BlockPos returnPos;
 	private RegistryKey<World> returnDimType;
 
-	public GlobeBlockEntity() {
-		super(DimensionGlobe.globeBlockEntityType);
+	public GlobeBlockEntity(BlockPos pos, BlockState state) {
+		super(DimensionGlobe.globeBlockEntityType, pos, state);
 	}
 
-	@Override
-	public void tick() {
-		if (!world.isClient && globeID != -1) {
-			if (!isInner()) {
+	public static void tick(World world, BlockPos pos, BlockState state, GlobeBlockEntity entity) {
+		if (!world.isClient && entity.globeID != -1) {
+			if (!entity.isInner()) {
 				GlobeManager.getInstance((ServerWorld) world)
-						.markGlobeForTicking(globeID);
+						.markGlobeForTicking(entity.globeID);
 			}
 		}
 		if (!world.isClient) {
 			if (world.getTime() % 20 == 0) {
-				GlobeSectionManagerServer.updateAndSyncToPlayers(this, true);
+				GlobeSectionManagerServer.updateAndSyncToPlayers(entity, true);
 			} else {
-				GlobeSectionManagerServer.updateAndSyncToPlayers(this, false);
+				GlobeSectionManagerServer.updateAndSyncToPlayers(entity, false);
 			}
 		}
 	}
 
 	@Override
-	public void readNbt(BlockState state, NbtCompound tag) {
-		super.readNbt(state, tag);
+	 public void readNbt(NbtCompound tag) {
+		super.readNbt(tag);
 		globeID = tag.getInt("globe_id");
 		if (tag.contains("base_block")) {
 			Identifier identifier = new Identifier(tag.getString("base_block"));
@@ -72,7 +71,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	@Override
-	public NbtCompound writeNbt(NbtCompound tag) {
+	public void writeNbt(NbtCompound tag) {
 		tag.putInt("globe_id", globeID);
 		if (baseBlock != null) {
 			tag.putString("base_block", Registry.BLOCK.getId(baseBlock).toString());
@@ -85,7 +84,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 			tag.putString("return_dim", returnDimType.getValue().toString());
 		}
 
-		return super.writeNbt(tag);
+		super.writeNbt(tag);
 	}
 
 
@@ -96,7 +95,7 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 
 		globeID = GlobeManager.getInstance((ServerWorld) world).getNextGlobe().getId();
 		markDirty();
-		sync();
+		//TODO sync();
 	}
 
 	public void transportPlayer(ServerPlayerEntity playerEntity) {
@@ -155,13 +154,15 @@ public class GlobeBlockEntity extends BlockEntity implements Tickable, BlockEnti
 	}
 
 	@Override
-	public void fromClientTag(NbtCompound compoundTag) {
-		readNbt(null, compoundTag);
+	public Packet<ClientPlayPacketListener> toUpdatePacket() {
+		return BlockEntityUpdateS2CPacket.create(this);
 	}
 
 	@Override
-	public NbtCompound toClientTag(NbtCompound compoundTag) {
-		return writeNbt(compoundTag);
+	public NbtCompound toInitialChunkDataNbt() {
+		NbtCompound tag = createNbt();
+		writeNbt(tag);
+		return tag;
 	}
 
 	public Block getBaseBlock() {

@@ -26,7 +26,7 @@ public class GlobeManager extends PersistentState {
 		}
 		final ServerWorld serverWorld = world;
 		return serverWorld.getPersistentStateManager()
-				.getOrCreate(() -> new GlobeManager(serverWorld), SAVE_KEY);
+				.getOrCreate((NbtCompound tag) -> GlobeManager.fromNbt(new GlobeManager(serverWorld), tag), () -> new GlobeManager(serverWorld), SAVE_KEY);
 	}
 
 	private Int2ObjectMap<Globe> globes = new Int2ObjectArrayMap<>();
@@ -35,7 +35,7 @@ public class GlobeManager extends PersistentState {
 	private final ServerWorld world;
 
 	public GlobeManager(ServerWorld world) {
-		super(SAVE_KEY);
+		super();
 		this.world = world;
 	}
 
@@ -94,20 +94,20 @@ public class GlobeManager extends PersistentState {
 		return world.getServer().getWorld(DimensionGlobe.globeDimension);
 	}
 
-	@Override
-	public void fromNbt(NbtCompound tag) {
-		globes.clear();
+	public static GlobeManager fromNbt(GlobeManager manager, NbtCompound tag) {
+		manager.globes.clear();
 		NbtCompound globesTag = tag.getCompound("globes");
 		for (String key : globesTag.getKeys()) {
 			int keyID = Integer.parseInt(key);
-			globes.put(keyID, new Globe(keyID, globesTag.getCompound(key)));
+			manager.globes.put(keyID, new Globe(keyID, globesTag.getCompound(key)));
 		}
 
 		NbtCompound tickingGlobesTag = tag.getCompound("ticking_globes");
 		for (String key : tickingGlobesTag.getKeys()) {
 			int keyID = Integer.parseInt(key);
-			tickingGlobes.put(keyID, world.getTime());
+			manager.tickingGlobes.put(keyID, manager.world.getTime());
 		}
+		return manager;
 	}
 
 	@Override

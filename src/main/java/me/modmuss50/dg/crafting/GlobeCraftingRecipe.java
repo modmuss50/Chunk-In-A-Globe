@@ -48,7 +48,7 @@ public class GlobeCraftingRecipe extends SpecialCraftingRecipe {
 			}
 			if (blockStack.getItem() instanceof BlockItem) {
 				Block block = ((BlockItem) blockStack.getItem()).getBlock();
-				if (!block.isIn(DimensionGlobe.BASE_BLOCK_TAG)) {
+				if (!block.getDefaultState().isIn(DimensionGlobe.BASE_BLOCK_TAG)) {
 					return ItemStack.EMPTY;
 				}
 			} else {
