@@ -9,9 +9,9 @@ import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
-import net.fabricmc.fabric.api.event.world.WorldTickCallback;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -29,9 +29,7 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.registry.Registry;
 import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
-import net.minecraft.world.dimension.DimensionType;
 
-@SuppressWarnings("deprecation")
 public class DimensionGlobe implements ModInitializer {
 
 	public static final String MOD_ID = "globedimension";
@@ -64,8 +62,8 @@ public class DimensionGlobe implements ModInitializer {
 
 		globeDimension = RegistryKey.of(Registry.WORLD_KEY, new Identifier("globedimension", "globe"));
 
-		WorldTickCallback.EVENT.register(world -> {
-			if (!world.isClient && world.getRegistryKey().equals(DimensionType.OVERWORLD_REGISTRY_KEY)) {
+		ServerTickEvents.START_WORLD_TICK.register(world -> {
+			if (!world.isClient && world.getRegistryKey().equals(World.OVERWORLD)) {
 				GlobeManager.getInstance((ServerWorld) world).tick();
 			}
 		});

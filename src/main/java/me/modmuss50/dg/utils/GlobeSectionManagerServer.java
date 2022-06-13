@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,7 +16,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
-@SuppressWarnings("deprecation")
 public class GlobeSectionManagerServer {
 
 	@SuppressWarnings("resource")
@@ -75,16 +74,16 @@ public class GlobeSectionManagerServer {
 	}
 
 	public static void register() {
-		ServerSidePacketRegistry.INSTANCE.register(new Identifier(DimensionGlobe.MOD_ID, "update_request"), (packetContext, packetByteBuf) -> {
+		ServerPlayNetworking.registerGlobalReceiver(new Identifier(DimensionGlobe.MOD_ID, "update_request"), (server, player, handler, packetByteBuf, responseSender) -> {
 			final int amount = packetByteBuf.readInt();
 			IntSet updateQueue = new IntOpenHashSet();
 			for (int i = 0; i < amount; i++) {
 				updateQueue.add(packetByteBuf.readInt());
 			}
-			packetContext.getTaskQueue().execute(() -> {
+			server.execute(() -> {
 				for (Integer id : updateQueue) {
-					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, true);
-					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, false);
+					updateAndSyncToPlayers(player, id, true);
+					updateAndSyncToPlayers(player, id, false);
 				}
 
 			});

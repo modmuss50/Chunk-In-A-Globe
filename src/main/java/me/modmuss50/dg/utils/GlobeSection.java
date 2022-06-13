@@ -112,7 +112,7 @@ public class GlobeSection {
 				if (entityData.contains("game_profile")) {
 					gameProfile = NbtHelper.toGameProfile(entityData.getCompound("game_profile"));
 				}
-				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile);
+				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile, null);
 				entity.readNbt(entityData.getCompound("entity_data"));
 
 				entities.add(entity);
