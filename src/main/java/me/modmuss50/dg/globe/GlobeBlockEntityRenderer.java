@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.joml.Math;
+
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.utils.GlobeSection;
 import me.modmuss50.dg.utils.GlobeSectionManagerClient;
@@ -129,7 +131,7 @@ public class GlobeBlockEntityRenderer implements BlockEntityRenderer<GlobeBlockE
 		if (baseBlock != null) {
 			BakedModel bakedModel = renderManager.getModel(baseBlock.getDefaultState());
 			blockSprite =  bakedModel.getParticleSprite();
-			blockTexture = new Identifier(blockSprite.getAtlasId().getNamespace(), "textures/" + blockSprite.getAtlasId().getPath() + ".png");
+			blockTexture = blockSprite.getAtlasId();
 		} else {
 			blockSprite =  renderManager.getModel(Blocks.STONE.getDefaultState()).getParticleSprite();
 		}
@@ -147,12 +149,14 @@ public class GlobeBlockEntityRenderer implements BlockEntityRenderer<GlobeBlockE
 
 			List<Cuboid> cuboids = new ArrayList<>();
 			Map<String, ModelPart> children = new HashMap<>();
+			int width = Math.round((sprite.getX() + sprite.getContents().getWidth()) / sprite.getMaxU());
+			int height = Math.round((sprite.getY()+ sprite.getContents().getHeight()) / sprite.getMaxV());
 			
-			Cuboid cuboid = new Cuboid(sprite.getX(), sprite.getY(),
+			Cuboid cuboid = new Cuboid(sprite.getX()-32, sprite.getY(), // WHY??
 					0, 0, 0,
 					16, 1, 16,
 					0, 0, 0,
-					false, sprite.getContents().getWidth(), sprite.getContents().getHeight(),
+					false, width, height,
 					EnumSet.allOf(Direction.class));
 			cuboids.add(cuboid);
 
