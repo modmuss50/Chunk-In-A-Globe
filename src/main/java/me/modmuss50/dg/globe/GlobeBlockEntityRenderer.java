@@ -127,7 +127,7 @@ public class GlobeBlockEntityRenderer implements BlockEntityRenderer<GlobeBlockE
 		if (baseBlock != null) {
 			BakedModel bakedModel = renderManager.getModel(baseBlock.getDefaultState());
 			blockSprite =  bakedModel.getParticleSprite();
-			blockTexture = new Identifier(blockSprite.getId().getNamespace(), "textures/" + blockSprite.getId().getPath() + ".png");
+			blockTexture = new Identifier(blockSprite.getAtlasId().getNamespace(), "textures/" + blockSprite.getAtlasId().getPath() + ".png");
 		} else {
 			blockSprite =  renderManager.getModel(Blocks.STONE.getDefaultState()).getParticleSprite();
 		}

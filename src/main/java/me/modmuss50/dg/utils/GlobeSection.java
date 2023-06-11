@@ -1,6 +1,12 @@
 package me.modmuss50.dg.utils;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import com.mojang.authlib.GameProfile;
+
 import me.modmuss50.dg.globe.GlobeBlock;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
 import net.minecraft.block.BlockState;
@@ -12,17 +18,13 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import net.minecraft.util.registry.Registry;
 import net.minecraft.world.World;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
 
 public class GlobeSection {
 
@@ -121,8 +123,8 @@ public class GlobeSection {
 				continue;
 			}
 
-			if (Registry.ENTITY_TYPE.getOrEmpty(entityType).isPresent()) {
-				EntityType<?> type = Registry.ENTITY_TYPE.get(entityType);
+			if (Registries.ENTITY_TYPE.getOrEmpty(entityType).isPresent()) {
+				EntityType<?> type = Registries.ENTITY_TYPE.get(entityType);
 				Entity entity = type.create(world);
 
 				if (entity == null) {
@@ -145,7 +147,7 @@ public class GlobeSection {
 		NbtCompound compoundTag = new NbtCompound();
 		for (Entity entity : entities) {
 			NbtCompound entityTag = new NbtCompound();
-			Identifier entityType = Registry.ENTITY_TYPE.getId(entity.getType());
+			Identifier entityType = Registries.ENTITY_TYPE.getId(entity.getType());
 			entityTag.putString("entity_type", entityType.toString());
 			NbtCompound entityData = new NbtCompound();
 			entity.writeNbt(entityData);

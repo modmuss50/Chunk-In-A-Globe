@@ -11,17 +11,18 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.nbt.NbtCompound;
-import net.minecraft.network.Packet;
 import net.minecraft.network.listener.ClientPlayPacketListener;
+import net.minecraft.network.packet.Packet;
 import net.minecraft.network.packet.s2c.play.BlockEntityUpdateS2CPacket;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3i;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 public class GlobeBlockEntity extends BlockEntity {
@@ -58,15 +59,15 @@ public class GlobeBlockEntity extends BlockEntity {
 		globeID = tag.getInt("globe_id");
 		if (tag.contains("base_block")) {
 			Identifier identifier = new Identifier(tag.getString("base_block"));
-			if (Registry.BLOCK.getOrEmpty(identifier).isPresent()) {
-				baseBlock = Registry.BLOCK.get(identifier);
+			if (Registries.BLOCK.getOrEmpty(identifier).isPresent()) {
+				baseBlock = Registries.BLOCK.get(identifier);
 			}
 		}
 		if (tag.contains("return_x")) {
 			returnPos = new BlockPos(tag.getInt("return_x"), tag.getInt("return_y"), tag.getInt("return_z"));
 
 			Identifier returnType = new Identifier(tag.getString("return_dim"));
-			returnDimType = RegistryKey.of(Registry.WORLD_KEY, returnType);
+			returnDimType = RegistryKey.of(RegistryKeys.WORLD, returnType);
 		}
 	}
 
@@ -74,7 +75,7 @@ public class GlobeBlockEntity extends BlockEntity {
 	public void writeNbt(NbtCompound tag) {
 		tag.putInt("globe_id", globeID);
 		if (baseBlock != null) {
-			tag.putString("base_block", Registry.BLOCK.getId(baseBlock).toString());
+			tag.putString("base_block", Registries.BLOCK.getId(baseBlock).toString());
 		}
 
 		if (returnPos != null && returnDimType != null) {

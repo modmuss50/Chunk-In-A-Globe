@@ -34,7 +34,7 @@ public class ExitPlacer {
 	private static BlockPos getBedLocation(ServerPlayerEntity playerEntity, ServerWorld destination) {
 		Optional<BlockPos> bedLocation = playerEntity.getSleepingPosition();
 		return bedLocation.flatMap(pos -> PlayerEntity.findRespawnPosition(destination, pos, 0, playerEntity.isSpawnForced(), true)
-				.map(BlockPos::new))
+				.map(BlockPos::ofFloored))
 				.orElse(null);
 	}
 }

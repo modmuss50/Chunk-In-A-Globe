@@ -22,12 +22,14 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.SpecialRecipeSerializer;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
-import net.minecraft.tag.TagKey;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryKey;
 import net.minecraft.world.World;
 
 public class DimensionGlobe implements ModInitializer {
@@ -41,26 +43,26 @@ public class DimensionGlobe implements ModInitializer {
 	public static RegistryKey<World> globeDimension;
 
 	public static final ItemGroup GLOBE_ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "globes"), () -> globeBlockItem.getWithBase(Blocks.OAK_PLANKS));
-	public static final TagKey<Block> BASE_BLOCK_TAG = TagKey.of(Registry.BLOCK_KEY, new Identifier(MOD_ID, "base_blocks"));
+	public static final TagKey<Block> BASE_BLOCK_TAG = TagKey.of(RegistryKeys.BLOCK, new Identifier(MOD_ID, "base_blocks"));
 
-	public static final SpecialRecipeSerializer<GlobeCraftingRecipe> GLOBE_CRAFTING = Registry.register(Registry.RECIPE_SERIALIZER, new Identifier(MOD_ID, "globe_crafting"), new SpecialRecipeSerializer<>(GlobeCraftingRecipe::new));
+	public static final SpecialRecipeSerializer<GlobeCraftingRecipe> GLOBE_CRAFTING = Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(MOD_ID, "globe_crafting"), new SpecialRecipeSerializer<>(GlobeCraftingRecipe::new));
 
 	@Override
 	public void onInitialize() {
 		Identifier globeID = new Identifier(MOD_ID, "globe");
 
-		Registry.register(Registry.BLOCK, globeID, globeBlock = new GlobeBlock());
+		Registry.register(Registries.BLOCK, globeID, globeBlock = new GlobeBlock());
 
 		globeBlockItem = new GlobeBlockItem(globeBlock, new Item.Settings().group(GLOBE_ITEM_GROUP));
 		globeBlockItem.appendBlocks(Item.BLOCK_ITEMS, globeBlockItem);
-		Registry.register(Registry.ITEM, globeID, globeBlockItem);
+		Registry.register(Registries.ITEM, globeID, globeBlockItem);
 
 		globeBlockEntityType = FabricBlockEntityTypeBuilder.create(GlobeBlockEntity::new, globeBlock).build(null);
-		Registry.register(Registry.BLOCK_ENTITY_TYPE, globeID, globeBlockEntityType);
+		Registry.register(Registries.BLOCK_ENTITY_TYPE, globeID, globeBlockEntityType);
 
-		Registry.register(Registry.CHUNK_GENERATOR, new Identifier("globedimension", "globe"), VoidChunkGenerator.CODEC);
+		Registry.register(Registries.CHUNK_GENERATOR, new Identifier("globedimension", "globe"), VoidChunkGenerator.CODEC);
 
-		globeDimension = RegistryKey.of(Registry.WORLD_KEY, new Identifier("globedimension", "globe"));
+		globeDimension = RegistryKey.of(RegistryKeys.WORLD, new Identifier("globedimension", "globe"));
 
 		ServerTickEvents.START_WORLD_TICK.register(world -> {
 			if (!world.isClient && world.getRegistryKey().equals(World.OVERWORLD)) {

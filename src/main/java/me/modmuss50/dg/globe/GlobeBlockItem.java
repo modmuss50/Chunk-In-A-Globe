@@ -10,13 +10,13 @@ import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.Registries;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.registry.Registry;
-import net.minecraft.util.registry.RegistryEntry;
 import net.minecraft.world.World;
 
 public class GlobeBlockItem extends BlockItem {
@@ -27,7 +27,7 @@ public class GlobeBlockItem extends BlockItem {
 	@Override
 	public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
 		if (this.isIn(group)) {
-			Iterable<RegistryEntry<Block>> entries = Registry.BLOCK.iterateEntries(DimensionGlobe.BASE_BLOCK_TAG);
+			Iterable<RegistryEntry<Block>> entries = Registries.BLOCK.iterateEntries(DimensionGlobe.BASE_BLOCK_TAG);
 			for (RegistryEntry<Block> block : entries) {
 				stacks.add(getWithBase(block.value()));
 			}
@@ -35,7 +35,7 @@ public class GlobeBlockItem extends BlockItem {
 	}
 
 	public ItemStack getWithBase(Block base) {
-		Identifier identifier = Registry.BLOCK.getId(base);
+		Identifier identifier = Registries.BLOCK.getId(base);
 		ItemStack stack = new ItemStack(this);
 		NbtCompound compoundTag = new NbtCompound();
 		compoundTag.putString("base_block", identifier.toString());
@@ -61,8 +61,8 @@ public class GlobeBlockItem extends BlockItem {
 			BlockEntity blockEntity = world.getBlockEntity(pos);
 			if (blockEntity instanceof GlobeBlockEntity) {
 				Identifier identifier = new Identifier(stack.getNbt().getString("base_block"));
-				if (Registry.BLOCK.getOrEmpty(identifier).isPresent()) {
-					((GlobeBlockEntity) blockEntity).setBaseBlock(Registry.BLOCK.get(identifier));
+				if (Registries.BLOCK.getOrEmpty(identifier).isPresent()) {
+					((GlobeBlockEntity) blockEntity).setBaseBlock(Registries.BLOCK.get(identifier));
 				}
 				if (stack.getNbt().contains("globe_id")) {
 					((GlobeBlockEntity) blockEntity).setGlobeID(stack.getNbt().getInt("globe_id"));
