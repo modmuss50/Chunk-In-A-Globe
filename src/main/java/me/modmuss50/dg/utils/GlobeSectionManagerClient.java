@@ -7,14 +7,13 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockItem;
-import net.fabricmc.fabric.api.event.client.ClientTickCallback;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.c2s.play.CustomPayloadC2SPacket;
 import net.minecraft.util.Identifier;
 
 
-@SuppressWarnings("deprecation")
 public class GlobeSectionManagerClient {
 
 	private static Int2ObjectMap<GlobeSection> selectionMap = new Int2ObjectArrayMap<>();
@@ -48,7 +47,7 @@ public class GlobeSectionManagerClient {
 	}
 
 	public static void register() {
-		ClientTickCallback.EVENT.register(minecraftClient -> {
+		ClientTickEvents.START_CLIENT_TICK.register(minecraftClient -> {
 			if (minecraftClient.world == null) {
 				//Ensure the state is not transfered across worlds
 				updateQueue.clear();
@@ -56,7 +55,7 @@ public class GlobeSectionManagerClient {
 				innerSelectionMap.clear();
 				return;
 			}
-			if (minecraftClient.world.getTime() % 20 == 0 || minecraftClient.player.inventory.getMainHandStack().getItem() instanceof GlobeBlockItem) {
+			if (minecraftClient.world.getTime() % 20 == 0 || minecraftClient.player.getMainHandStack().getItem() instanceof GlobeBlockItem) {
 				processUpdateQueue();
 			}
 		});

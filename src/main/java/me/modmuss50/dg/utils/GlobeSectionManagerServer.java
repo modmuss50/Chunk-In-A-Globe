@@ -8,7 +8,7 @@ import it.unimi.dsi.fastutil.ints.IntOpenHashSet;
 import it.unimi.dsi.fastutil.ints.IntSet;
 import me.modmuss50.dg.DimensionGlobe;
 import me.modmuss50.dg.globe.GlobeBlockEntity;
-import net.fabricmc.fabric.api.network.ServerSidePacketRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.network.packet.s2c.play.CustomPayloadS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -16,7 +16,6 @@ import net.minecraft.server.world.ServerWorld;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Vec3d;
 
-@SuppressWarnings("deprecation")
 public class GlobeSectionManagerServer {
 
 	@SuppressWarnings("resource")
@@ -62,10 +61,10 @@ public class GlobeSectionManagerServer {
 		buf.writeBoolean(blockEntity.isInner());
 		if (blocks) {
 			buf.writeBoolean(true);
-			buf.writeCompoundTag(section.toBlockTag());
+			buf.writeNbt(section.toBlockTag());
 		} else {
 			buf.writeBoolean(false);
-			buf.writeCompoundTag(section.toEntityTag(blockEntity.isInner() ? blockEntity.getInnerScanPos() : globe.getGlobeLocation()));
+			buf.writeNbt(section.toEntityTag(blockEntity.isInner() ? blockEntity.getInnerScanPos() : globe.getGlobeLocation()));
 		}
 
 		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);
@@ -75,16 +74,16 @@ public class GlobeSectionManagerServer {
 	}
 
 	public static void register() {
-		ServerSidePacketRegistry.INSTANCE.register(new Identifier(DimensionGlobe.MOD_ID, "update_request"), (packetContext, packetByteBuf) -> {
+		ServerPlayNetworking.registerGlobalReceiver(new Identifier(DimensionGlobe.MOD_ID, "update_request"), (server, player, handler, packetByteBuf, responseSender) -> {
 			final int amount = packetByteBuf.readInt();
 			IntSet updateQueue = new IntOpenHashSet();
 			for (int i = 0; i < amount; i++) {
 				updateQueue.add(packetByteBuf.readInt());
 			}
-			packetContext.getTaskQueue().execute(() -> {
+			server.execute(() -> {
 				for (Integer id : updateQueue) {
-					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, true);
-					updateAndSyncToPlayers((ServerPlayerEntity) packetContext.getPlayer(), id, false);
+					updateAndSyncToPlayers(player, id, true);
+					updateAndSyncToPlayers(player, id, false);
 				}
 
 			});
@@ -114,10 +113,10 @@ public class GlobeSectionManagerServer {
 		buf.writeBoolean(false);
 		if (blocks) {
 			buf.writeBoolean(true);
-			buf.writeCompoundTag(section.toBlockTag());
+			buf.writeNbt(section.toBlockTag());
 		} else {
 			buf.writeBoolean(false);
-			buf.writeCompoundTag(section.toEntityTag(globe.getGlobeLocation()));
+			buf.writeNbt(section.toEntityTag(globe.getGlobeLocation()));
 		}
 
 		CustomPayloadS2CPacket clientBoundPacket = new CustomPayloadS2CPacket(new Identifier(DimensionGlobe.MOD_ID, "section_update"), buf);

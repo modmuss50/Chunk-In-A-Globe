@@ -1,11 +1,16 @@
 package me.modmuss50.dg.globe;
 
+import java.util.Collections;
+import java.util.List;
+
 import me.modmuss50.dg.DimensionGlobe;
-import net.fabricmc.fabric.api.block.FabricBlockSettings;
+import net.fabricmc.fabric.api.object.builder.v1.block.FabricBlockSettings;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.BlockWithEntity;
 import net.minecraft.block.Material;
 import net.minecraft.block.entity.BlockEntity;
+import net.minecraft.block.entity.BlockEntityTicker;
+import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.context.LootContext;
@@ -17,26 +22,20 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.BlockView;
 import net.minecraft.world.World;
 
-import java.util.Collections;
-import java.util.List;
-
-@SuppressWarnings("deprecation")
 public class GlobeBlock extends BlockWithEntity {
 	public GlobeBlock() {
-		super(FabricBlockSettings.of(Material.GLASS)
-				.nonOpaque()
-				.build());
+		super(FabricBlockSettings.of(Material.GLASS).nonOpaque());
 	}
 
 	@Override
-	public BlockEntity createBlockEntity(BlockView view) {
-		return new GlobeBlockEntity();
+	public BlockEntity createBlockEntity(BlockPos pos, BlockState state) {
+		return new GlobeBlockEntity(pos, state);
 	}
 
-	@Override
-	public boolean isTranslucent(BlockState state, BlockView view, BlockPos pos) {
-		return true;
-	}
+	//@Override
+	//public boolean isTranslucent(BlockState state, BlockView view, BlockPos pos) {
+	//	return true;
+	//}
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {
@@ -68,9 +67,14 @@ public class GlobeBlock extends BlockWithEntity {
 		BlockEntity blockEntity = world.getBlockEntity(pos);
 		if (blockEntity instanceof GlobeBlockEntity) {
 			ItemStack stack = DimensionGlobe.globeBlockItem.getWithBase(((GlobeBlockEntity) blockEntity).getBaseBlock());
-			stack.getTag().putInt("globe_id", ((GlobeBlockEntity) blockEntity).getGlobeID());
+			stack.getNbt().putInt("globe_id", ((GlobeBlockEntity) blockEntity).getGlobeID());
 			return stack;
 		}
 		return ItemStack.EMPTY;
+	}
+
+	@Override
+	public <T extends BlockEntity> BlockEntityTicker<T> getTicker(World world, BlockState state, BlockEntityType<T> type) {
+	    return checkType(type, DimensionGlobe.globeBlockEntityType, (world1, pos, state1, be) -> GlobeBlockEntity.tick(world1, pos, state1, be));
 	}
 }

@@ -8,6 +8,8 @@ import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SpecialCraftingRecipe;
+import net.minecraft.recipe.book.CraftingRecipeCategory;
+import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
 
@@ -16,17 +18,17 @@ public class GlobeCraftingRecipe extends SpecialCraftingRecipe {
 	private int[] glassSlots = new int[]{0, 1, 2, 3, 5};
 	private int[] blockSlots = new int[]{6, 7, 8};
 
-	public GlobeCraftingRecipe(Identifier id) {
-		super(id);
+	public GlobeCraftingRecipe(Identifier id, CraftingRecipeCategory category) {
+		super(id, category);
 	}
 
 	@Override
 	public boolean matches(CraftingInventory inv, World world) {
-		return !craft(inv).isEmpty();
+		return !craft(inv, null).isEmpty();
 	}
 
 	@Override
-	public ItemStack craft(CraftingInventory inv) {
+	public ItemStack craft(CraftingInventory inv, DynamicRegistryManager manager) {
 		for (int glassSlot : glassSlots) {
 			if (inv.getStack(glassSlot).getItem() != Items.GLASS) {
 				return ItemStack.EMPTY;
@@ -48,7 +50,7 @@ public class GlobeCraftingRecipe extends SpecialCraftingRecipe {
 			}
 			if (blockStack.getItem() instanceof BlockItem) {
 				Block block = ((BlockItem) blockStack.getItem()).getBlock();
-				if (!block.isIn(DimensionGlobe.BASE_BLOCK_TAG)) {
+				if (!block.getDefaultState().isIn(DimensionGlobe.BASE_BLOCK_TAG)) {
 					return ItemStack.EMPTY;
 				}
 			} else {
