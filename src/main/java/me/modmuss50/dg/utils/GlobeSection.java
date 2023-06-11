@@ -19,7 +19,6 @@ import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtHelper;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Box;
@@ -75,7 +74,7 @@ public class GlobeSection {
 		globeData.clear();
 		for (String key : tag.getKeys()) {
 			NbtCompound entryTag = tag.getCompound(key);
-			BlockState state = NbtHelper.toBlockState(entryTag.getCompound("state"));
+			BlockState state = NbtHelper.toBlockState(Registries.BLOCK.getReadOnlyWrapper(), entryTag.getCompound("state"));
 			BlockPos pos = NbtHelper.toBlockPos(entryTag.getCompound("pos"));
 			stateMap.put(pos, state);
 			if (entryTag.contains("globe_data")) {
@@ -114,7 +113,7 @@ public class GlobeSection {
 				if (entityData.contains("game_profile")) {
 					gameProfile = NbtHelper.toGameProfile(entityData.getCompound("game_profile"));
 				}
-				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile, null);
+				OtherClientPlayerEntity entity = new OtherClientPlayerEntity((ClientWorld) world, gameProfile);
 				entity.readNbt(entityData.getCompound("entity_data"));
 
 				entities.add(entity);

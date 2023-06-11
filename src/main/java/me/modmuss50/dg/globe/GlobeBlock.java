@@ -32,10 +32,10 @@ public class GlobeBlock extends BlockWithEntity {
 		return new GlobeBlockEntity(pos, state);
 	}
 
-	@Override
-	public boolean isTranslucent(BlockState state, BlockView view, BlockPos pos) {
-		return true;
-	}
+	//@Override
+	//public boolean isTranslucent(BlockState state, BlockView view, BlockPos pos) {
+	//	return true;
+	//}
 
 	@Override
 	public ActionResult onUse(BlockState state, World world, BlockPos pos, PlayerEntity player, Hand hand, BlockHitResult hit) {

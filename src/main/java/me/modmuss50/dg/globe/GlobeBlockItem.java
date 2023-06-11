@@ -6,32 +6,19 @@ import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemGroup;
 import net.minecraft.item.ItemPlacementContext;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.DefaultedList;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.World;
 
 public class GlobeBlockItem extends BlockItem {
 	public GlobeBlockItem(Block block, Settings settings) {
 		super(block, settings);
-	}
-
-	@Override
-	public void appendStacks(ItemGroup group, DefaultedList<ItemStack> stacks) {
-		if (this.isIn(group)) {
-			Iterable<RegistryEntry<Block>> entries = Registries.BLOCK.iterateEntries(DimensionGlobe.BASE_BLOCK_TAG);
-			for (RegistryEntry<Block> block : entries) {
-				stacks.add(getWithBase(block.value()));
-			}
-		}
 	}
 
 	public ItemStack getWithBase(Block base) {

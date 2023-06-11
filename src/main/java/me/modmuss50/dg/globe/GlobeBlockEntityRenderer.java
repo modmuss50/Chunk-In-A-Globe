@@ -1,6 +1,7 @@
 package me.modmuss50.dg.globe;
 
 import java.util.ArrayList;
+import java.util.EnumSet;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.entity.Entity;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
+import net.minecraft.util.math.Direction;
 import net.minecraft.util.math.Vec3d;
 import net.minecraft.util.profiler.Profiler;
 
@@ -150,7 +152,8 @@ public class GlobeBlockEntityRenderer implements BlockEntityRenderer<GlobeBlockE
 					0, 0, 0,
 					16, 1, 16,
 					0, 0, 0,
-					false, sprite.getWidth(), sprite.getHeight());
+					false, sprite.getContents().getWidth(), sprite.getContents().getHeight(),
+					EnumSet.allOf(Direction.class));
 			cuboids.add(cuboid);
 
 			base = new ModelPart(cuboids, children);

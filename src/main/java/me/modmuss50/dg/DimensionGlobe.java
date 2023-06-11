@@ -8,10 +8,10 @@ import me.modmuss50.dg.globe.VoidChunkGenerator;
 import me.modmuss50.dg.utils.GlobeManager;
 import me.modmuss50.dg.utils.GlobeSectionManagerServer;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.client.itemgroup.FabricItemGroupBuilder;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
 import net.fabricmc.fabric.api.event.player.AttackBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.fabricmc.fabric.api.object.builder.v1.block.entity.FabricBlockEntityTypeBuilder;
 import net.minecraft.block.Block;
 import net.minecraft.block.BlockState;
@@ -26,8 +26,10 @@ import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
 import net.minecraft.registry.RegistryKey;
 import net.minecraft.registry.RegistryKeys;
+import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.registry.tag.TagKey;
 import net.minecraft.server.world.ServerWorld;
+import net.minecraft.text.Text;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.Identifier;
 import net.minecraft.world.World;
@@ -42,7 +44,7 @@ public class DimensionGlobe implements ModInitializer {
 
 	public static RegistryKey<World> globeDimension;
 
-	public static final ItemGroup GLOBE_ITEM_GROUP = FabricItemGroupBuilder.build(new Identifier(MOD_ID, "globes"), () -> globeBlockItem.getWithBase(Blocks.OAK_PLANKS));
+	public static ItemGroup GLOBE_ITEM_GROUP;
 	public static final TagKey<Block> BASE_BLOCK_TAG = TagKey.of(RegistryKeys.BLOCK, new Identifier(MOD_ID, "base_blocks"));
 
 	public static final SpecialRecipeSerializer<GlobeCraftingRecipe> GLOBE_CRAFTING = Registry.register(Registries.RECIPE_SERIALIZER, new Identifier(MOD_ID, "globe_crafting"), new SpecialRecipeSerializer<>(GlobeCraftingRecipe::new));
@@ -53,9 +55,21 @@ public class DimensionGlobe implements ModInitializer {
 
 		Registry.register(Registries.BLOCK, globeID, globeBlock = new GlobeBlock());
 
-		globeBlockItem = new GlobeBlockItem(globeBlock, new Item.Settings().group(GLOBE_ITEM_GROUP));
+		globeBlockItem = new GlobeBlockItem(globeBlock, new Item.Settings());
 		globeBlockItem.appendBlocks(Item.BLOCK_ITEMS, globeBlockItem);
 		Registry.register(Registries.ITEM, globeID, globeBlockItem);
+
+		GLOBE_ITEM_GROUP = FabricItemGroup.builder(new Identifier("example", "test_group"))
+			    .displayName(Text.of("Globes"))
+			    .icon(() -> new ItemStack(globeBlockItem))
+			    .entries((context, entries) -> {
+			    	Iterable<RegistryEntry<Block>> entries2 = Registries.BLOCK.iterateEntries(DimensionGlobe.BASE_BLOCK_TAG);
+					for (RegistryEntry<Block> block : entries2) {
+						entries.add(globeBlockItem.getWithBase(block.value()));
+					}
+			        entries.add(globeBlockItem);
+			    })
+			    .build();
 
 		globeBlockEntityType = FabricBlockEntityTypeBuilder.create(GlobeBlockEntity::new, globeBlock).build(null);
 		Registry.register(Registries.BLOCK_ENTITY_TYPE, globeID, globeBlockEntityType);
